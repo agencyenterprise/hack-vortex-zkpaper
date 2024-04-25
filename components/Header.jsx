@@ -4,7 +4,6 @@ import {
   PaperAirplaneIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import Link from "next/link";
 import { useState } from "react";
 
 const navigation = [
@@ -21,13 +20,13 @@ export default function Header() {
         className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
         aria-label="Global"
       >
-        <Link
+        <a
           href="/"
           className="-m-1.5 p-1.5 flex items-center gap-2"
         >
           <span className="sr-only">zkPaper</span>
           <PaperAirplaneIcon className="h-8" /> zkPaper
-        </Link>
+        </a>
         <div className="flex lg:hidden">
           <button
             type="button"
@@ -62,13 +61,13 @@ export default function Header() {
         <div className="fixed inset-0 z-10" />
         <Dialog.Panel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center justify-between">
-            <Link
+            <a
               href="/"
               className="-m-1.5 p-1.5 flex items-center gap-2"
             >
               <span className="sr-only">zkPaper</span>
               <PaperAirplaneIcon className="h-8" /> zkPaper
-            </Link>
+            </a>
             <button
               type="button"
               className="-m-2.5 rounded-md p-2.5 text-gray-700"

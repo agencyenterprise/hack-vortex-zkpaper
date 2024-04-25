@@ -1,40 +1,110 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Noir with Vite and Hardhat
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/e4bd1ebc-6be1-4ed2-8be8-18f70382ae22/deploy-status)](https://app.netlify.com/sites/noir-vite-hardhat/deploys)
+
+This example uses [Vite](https://vite.dev/) as the frontend framework, and
+[Hardhat](https://hardhat.org/) to deploy and test.
 
 ## Getting Started
 
-First, run the development server:
+Want to get started in a pinch? Start your project in a free Github Codespace!
+
+[![Start your project in a free Github Codespace!](https://github.com/codespaces/badge.svg)](https://codespaces.new/noir-lang/noir-starter/tree/main)
+
+In the meantime, follow these simple steps to work on your own machine:
+
+1. Install [yarn](https://yarnpkg.com/) (tested on yarn v1.22.19)
+2. Install [Node.js >20.10 (latest LTS)](https://nodejs.org/en) (tested on v18.17.0)
+3. Install [noirup](https://noir-lang.org/docs/getting_started/installation/#installing-noirup) with
+
+   ```bash
+   curl -L https://raw.githubusercontent.com/noir-lang/noirup/main/install | bash
+   ```
+
+4. Install Nargo with
+
+   ```bash
+   noirup
+   ```
+
+5. Install dependencies with
+
+   ```bash
+   yarn
+   ```
+
+6. Generate the verifier contract
+
+   ```bash
+   yarn prep
+   ```
+
+### Test locally
+
+1. Start a local development EVM at <http://localhost:8545> with
+
+   ```bash
+   npx hardhat node
+   ```
+
+   or if foundry is preferred, with
+
+   ```bash
+   anvil
+   ```
+
+2. Run the [example test file](./test/index.test.ts) with
+
+   ```bash
+   yarn test
+   ```
+
+The test demonstrates basic usage of Noir in a TypeScript Node.js environment.
+
+### Deploy locally
+
+1. Start a local development EVM at <http://localhost:8545> with
+
+   ```bash
+   npx hardhat node
+   ```
+
+   or if foundry is preferred, with
+
+   ```bash
+   anvil
+   ```
+
+2. Build the project and deploy contracts to the local development chain with
+
+   ```bash
+   yarn build
+   ```
+
+3. Once your contracts are deployed and the build is finished, you can preview the built website with
+
+   ```bash
+   yarn preview
+   ```
+
+### On-chain verification
+
+The app will verify your proof locally. If you have a wallet, it will prompt you to connect to the relevant network and use it for on-chain verification.
+
+### Deploy on testnets
+
+For convenience, we added two configurations for deployment on various testnets. You can find them in `hardhat.config.cts`.
+
+To deploy on these testnets, rename `.env.example` to `.env` and add your own [alchemy](https://www.alchemy.com/) keys for these networks.
+
+Then, prepend your commands with your desired network in a `NETWORK` environment variable. For example, to deploy on sepolia:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+NETWORK=sepolia yarn build`
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Feel free to add more networks, just make sure you:
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Add deployer private keys and alchemy API keys in `.env`
+- Have funds in these accounts
+- Add a configuration in `hardhat.config.cts`
