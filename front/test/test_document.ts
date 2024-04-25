@@ -26,7 +26,26 @@ describe("DocumentNFT", function () {
             const price = { value: ethers.parseEther("0.01") };
             await nft.connect(addr1).mintArticle("Article 1", price);
             expect(await nft.balanceOf(addr1.address)).to.equal(1);
-            await nft.tokenOfOwnerByIndex(addr1.address, 0);
+            const tokenId = await nft.tokenOfOwnerByIndex(addr1.address, 0);
+            const uri = await nft.getTokenURI(tokenId);
+            expect(uri).to.include("Article 1");
+
+        });
+        it("Should mint one NFT to addr1 and reduce the article's name size", async function () {
+            const price = { value: ethers.parseEther("0.01") };
+            const articleName = Array(100).fill("a").join("");
+            await nft.connect(addr1).mintArticle(articleName, price);
+            expect(await nft.balanceOf(addr1.address)).to.equal(1);
+            const tokenId = await nft.tokenOfOwnerByIndex(addr1.address, 0);
+            const uri = await nft.getTokenURI(tokenId);
+            expect(uri).to.not.include(articleName);
+            expect(uri).to.include(articleName.slice(0, 64));
+
+        });
+        it("Should throw error since tokenId does not exists", async function () {
+            await expect(nft.getTokenURI(10))
+                .to.be.revertedWith("ERC721Metadata: URI query for nonexistent token");
+
         });
 
         it("Should fail if ether sent is incorrect", async function () {

@@ -23,6 +23,43 @@ contract DocumentNFT is ERC721Enumerable, ReentrancyGuard {
         _;
     }
 
+    function sliceString(
+        string memory str,
+        uint startIndex,
+        uint endIndex
+    ) public pure returns (string memory) {
+        require(
+            endIndex > startIndex,
+            "End index must be greater than start index."
+        );
+        bytes memory strBytes = bytes(str);
+        if (endIndex > strBytes.length) {
+            endIndex = strBytes.length;
+        }
+        if (endIndex > 64) {
+            endIndex = 64;
+        }
+
+        bytes memory result = new bytes(endIndex - startIndex);
+        for (uint i = startIndex; i < endIndex; i++) {
+            result[i - startIndex] = strBytes[i];
+        }
+
+        return string(result);
+    }
+
+    function hasTokenURI(uint256 tokenId) public view returns (bool) {
+        return bytes(_tokenURIs[tokenId]).length > 0;
+    }
+
+    function getTokenURI(uint256 tokenId) public view returns (string memory) {
+        require(
+            hasTokenURI(tokenId),
+            "ERC721Metadata: URI query for nonexistent token"
+        );
+        return _tokenURIs[tokenId];
+    }
+
     function mintArticle(
         string memory articleName
     ) public payable nonReentrant {
@@ -33,7 +70,8 @@ contract DocumentNFT is ERC721Enumerable, ReentrancyGuard {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         _mint(msg.sender, newItemId);
-        _tokenURIs[newItemId] = articleName;
+        string memory slicedString = sliceString(articleName, 0, 64);
+        _tokenURIs[newItemId] = formatTokenURI(slicedString);
     }
 
     function formatTokenURI(
