@@ -21,6 +21,7 @@ import NewDocument from "./routes/NewDocument.jsx";
 
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Home from "./routes/Home.jsx";
+import ViewDocument from "./routes/ViewDocument.jsx";
 
 const client = createThirdwebClient({
   clientId: "1eafd11d31d6d24dfceefb36c3de54d2",
@@ -77,6 +78,10 @@ const router = createBrowserRouter([
       {
         path: "/new-document",
         element: <NewDocument />,
+      },
+      {
+        path: "/document/:id",
+        element: <ViewDocument />,
       },
     ],
   },
