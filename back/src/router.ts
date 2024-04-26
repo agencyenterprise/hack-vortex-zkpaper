@@ -1,20 +1,20 @@
 import express from 'express';
 import { getDocumentById } from './controller';
-
+import tweetnacl from 'tweetnacl';
+import { verifySignature } from './utils/signatures';
 const router = express.Router();
 
 router.post("/document/share/keys/create", async (req, res) => {
 
-    // const receiverPublicKey = req.headers["public-key"];
-    const { aesKey, documentId, senderPublicKey } = req.body;
-    
-    
-
-    res.json({ message: "Ok" });
+    const { senderAesKey, receiverAesKey, documentId, senderPublicKey, receiverPublicKey, receiverSignature, receiverSignatureMessage } = req.body;
+    console.log({
+        senderAesKey, receiverAesKey, documentId, senderPublicKey, receiverPublicKey, receiverSignature, receiverSignatureMessage
+    })
+    res.json({ message: verifySignature(receiverPublicKey, receiverSignatureMessage, receiverSignature) });
 })
 
 router.post("/document/create", async (req, res) => {
-    
+
     const { document, publicKey } = req.body;
 
     if (!document) {
@@ -25,7 +25,7 @@ router.post("/document/create", async (req, res) => {
 });
 
 router.get("/document/:id", async (req, res) => {
-    
+
     const { id } = req.params;
 
     if (!id) {

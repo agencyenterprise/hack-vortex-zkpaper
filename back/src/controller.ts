@@ -62,6 +62,14 @@ export const createSharedDocument = async (documentId: string, receiverPublicKey
 
 }
 
+export const uploadSharedDocument = async (sharedDocumentId: string, content: string) => {
+    const { db } = await connectToDatabase();
+
+    const collection = db.collection("sharedDocuments");
+
+    return collection.updateOne({ _id: new ObjectId(sharedDocumentId) }, { $set: { content } });
+}
+
 export const acceptSharedDocument = async (sharedDocumentId: string, receiverPublicKey: string) => {
     const { db } = await connectToDatabase();
 
