@@ -176,7 +176,6 @@ const NewDocument = () => {
             </Button>
           </div>
         </div>
-
         <Editor />
       </div>
     </div>
