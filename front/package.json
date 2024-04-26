@@ -37,6 +37,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-quill": "^2.0.0",
+    "react-router": "^6.23.0",
+    "react-router-dom": "^6.23.0",
     "react-toastify": "^9.1.1",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",

@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+.bg-primary,
+body {
+  background-color: black;
+}
+
+.bg-secondary {
+  background-color: #1e293b;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

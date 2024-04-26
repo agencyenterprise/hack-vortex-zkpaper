@@ -1,9 +1,8 @@
 import React, { useState } from "react";
+import { Outlet } from "react-router-dom";
 import { useOffChainVerification } from "../hooks/useOffChainVerification.jsx";
 import { useProofGeneration } from "../hooks/useProofGeneration.jsx";
-import Editor from "./Editor.jsx";
 import Header from "./Header.jsx";
-import ViewDocument from "./ViewDocument.jsx";
 
 function Component() {
   const [input, setInput] = useState<
@@ -26,9 +25,13 @@ function Component() {
   return (
     <main>
       <Header />
+      <Outlet />
+      {/* <Header /> */}
+
+      {/* <Header />
       <Editor />
-      <ViewDocument />
-      <form
+      <ViewDocument /> */}
+      {/* <form
         className="container"
         onSubmit={submit}
       >
@@ -51,7 +54,7 @@ function Component() {
         >
           Calculate proof
         </button>
-      </form>
+      </form> */}
     </main>
   );
 }
