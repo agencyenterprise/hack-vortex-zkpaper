@@ -26,7 +26,7 @@ interface SharedDocumentModel {
     createdAt: Date;
 }
 
-export const createSharedDocument = async (documentId: string, receiverPublicKey: string, senderPublicKey: string) => {
+export const createSharedDocument = async (documentId: string, receiverPublicKey: string, senderPublicKey: string, senderAesKey: string, receiverAesKey: string) => {
 
     const { db } = await connectToDatabase();
 
@@ -55,8 +55,8 @@ export const createSharedDocument = async (documentId: string, receiverPublicKey
         documentId: new ObjectId(documentId),
         receiverId: receiver._id,
         senderId: sender._id,
-        senderSecretKey: sender.secretKey,
-        receiverSecretKey: receiver.secretKey,
+        senderSecretKey: senderAesKey,
+        receiverSecretKey: receiverAesKey,
         createdAt: new Date()
     });
 
@@ -98,4 +98,27 @@ export const getDocumentById = async (documentId: string) => {
     const collection = db.collection<DocumentModel>("documents");
 
     return collection.findOne({ _id: new ObjectId(documentId) });
+}
+
+export const getUserById = async (userId: string) => {
+    const { db } = await connectToDatabase();
+
+    const collection = db.collection<UserModel>("users");
+
+    return collection.findOne({ _id: new ObjectId(userId) });
+}
+export const getUserByPublicKey = async (publicKey: string) => {
+    const { db } = await connectToDatabase();
+
+    const collection = db.collection<UserModel>("users");
+
+    return collection.findOne({ publicKey });
+}
+
+export const getUserDocuments = async (publicKey: string, limit: number = 10, skip: number = 0) => {
+    const { db } = await connectToDatabase();
+
+    const collection = db.collection<DocumentModel>("documents");
+
+    return collection.find({ publicKey }, { limit, skip });
 }

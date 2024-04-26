@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useOffChainVerification } from "../hooks/useOffChainVerification.jsx";
-import { useProofGeneration } from "../hooks/useProofGeneration.jsx";
+import { useOffChainVerification } from "../hooks/useOffChainVerification.js";
+import { useProofGeneration } from "../hooks/useProofGeneration.js";
 import Editor from "./Editor.jsx";
 import Header from "./Header.jsx";
 import ViewDocument from "./ViewDocument.jsx";

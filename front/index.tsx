@@ -9,15 +9,13 @@ import initNoirC from '@noir-lang/noirc_abi';
 import initACVM from '@noir-lang/acvm_js';
 import "./styles/globals.css";
 import {
-  ConnectButton,
   ThirdwebProvider
-} from "thirdweb/react";
+} from "@thirdweb-dev/react";
+import { ThirdwebProvider as ThirdwebProviderV5, ConnectButton } from "thirdweb/react"
 import { defineChain } from "thirdweb/chains";
 import { createThirdwebClient } from "thirdweb";
 import {
   createWallet,
-  walletConnect,
-  inAppWallet,
 } from "thirdweb/wallets";
 import {
   QueryClientProvider,
@@ -55,20 +53,23 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
   <ThirdwebProvider
   >
-    <QueryClientProvider client={queryClient}>
-      <ConnectButton
-        client={client}
-        wallets={wallets}
-        chain={defineChain(534351)}
-        theme={"dark"}
-        connectModal={{ size: "wide" }}
-      />
-      <InitWasm>
-        <Component />
-        <ToastContainer />
-      </InitWasm>
-    </QueryClientProvider>
+    <ThirdwebProviderV5>
+      <QueryClientProvider client={queryClient}>
+        <ConnectButton
+          client={client}
+          wallets={wallets}
+          chain={defineChain(534351)}
+          theme={"dark"}
+          connectModal={{ size: "wide" }}
+        />
+        <InitWasm>
+          <Component />
+          <ToastContainer />
+        </InitWasm>
+      </QueryClientProvider>
+    </ThirdwebProviderV5>
   </ThirdwebProvider>
+
 
 
 );
