@@ -5,7 +5,7 @@
   "description": "A template repository to get started with writing zero knowledge programs with Noir.",
   "scripts": {
     "prep": "cd circuit && nargo codegen-verifier",
-    "dev": "yarn prep && hardhat compile && yarn deploy && vite",
+    "dev": "hardhat compile && yarn deploy && vite",
     "build": "hardhat compile && yarn deploy && vite build",
     "preview": "vite preview",
     "deploy": "hardhat compile && NODE_OPTIONS='--experimental-loader ts-node/esm/transpile-only' hardhat run --network ${NETWORK:-localhost} scripts/deploy.ts",
@@ -47,7 +47,7 @@
     "solidity-coverage": "^0.8.5",
     "tailwindcss": "^3.4.3",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.3",
+    "typescript": "~5.0.4",
     "vite": "^5.0.6",
     "wagmi": "^1.4.8"
   },
