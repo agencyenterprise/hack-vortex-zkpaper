@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -11,11 +11,15 @@ contract DocumentNFT is ERC721Enumerable, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     address public owner;
-    uint256 public constant PRICE = 0.01 ether;
+    uint256 private PRICE;
     mapping(uint256 => string) private _tokenURIs;
+    mapping(address => uint256) private _subscriptions;
+    uint256 private _itemsPerSubscription;
 
     constructor() ERC721("ArticleNFT", "ANFT") {
         owner = msg.sender;
+        PRICE = 0.001 ether;
+        _itemsPerSubscription = 10;
     }
 
     modifier onlyOwner() {
@@ -52,6 +56,12 @@ contract DocumentNFT is ERC721Enumerable, ReentrancyGuard {
         return bytes(_tokenURIs[tokenId]).length > 0;
     }
 
+    function hasSubscriptionOrDocumentsToMint(
+        address subscriber
+    ) public view returns (bool) {
+        return _subscriptions[subscriber] > uint256(0);
+    }
+
     function getTokenURI(uint256 tokenId) public view returns (string memory) {
         require(
             hasTokenURI(tokenId),
@@ -60,18 +70,41 @@ contract DocumentNFT is ERC721Enumerable, ReentrancyGuard {
         return _tokenURIs[tokenId];
     }
 
-    function mintArticle(
-        string memory articleName
-    ) public payable nonReentrant {
+    function changePrice(uint256 newPrice) public onlyOwner {
+        PRICE = newPrice;
+    }
+
+    function mintArticle(string memory articleName) public nonReentrant {
         require(
-            msg.value == PRICE,
-            "Please submit the correct amount of ETH to purchase the NFT."
+            hasSubscriptionOrDocumentsToMint(msg.sender),
+            "You need to purchase a subscription to mint a document"
         );
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         _mint(msg.sender, newItemId);
         string memory slicedString = sliceString(articleName, 0, 64);
         _tokenURIs[newItemId] = formatTokenURI(slicedString);
+        _subscriptions[msg.sender]--;
+    }
+
+    function paySubscription() public payable {
+        require(
+            msg.value == PRICE * _itemsPerSubscription,
+            "Please submit the correct amount of ETH to purchase the NFT."
+        );
+        _subscriptions[msg.sender] += _itemsPerSubscription;
+    }
+
+    function transferNFT(address from, address to, uint256 tokenId) public {
+        require(
+            _exists(tokenId),
+            "ERC721: transfer of token that does not exist"
+        );
+        require(
+            _isApprovedOrOwner(_msgSender(), tokenId),
+            "ERC721: caller is not token owner or approved"
+        );
+        _transfer(from, to, tokenId);
     }
 
     function formatTokenURI(
@@ -82,7 +115,7 @@ contract DocumentNFT is ERC721Enumerable, ReentrancyGuard {
                 abi.encodePacked(
                     'data:application/json;utf8,{"name":"',
                     articleName,
-                    '", "description":"An NFT based on an article.", "image":"", "attributes":""}'
+                    '", "description":"A private zkPaper document"}'
                 )
             );
     }
