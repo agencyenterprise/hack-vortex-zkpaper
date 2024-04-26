@@ -1,17 +1,18 @@
 import { writeFileSync } from 'fs';
-import hre from 'hardhat';
-const { viem } = hre;
+import pkg from 'hardhat';
+const { ethers } = pkg;
 
 async function main() {
-  const publicClient = await viem.getPublicClient();
-
-  // Deploy the verifier contract
-  const verifier = await viem.deployContract('UltraVerifier');
-
+  const document = await (await ethers.getContractFactory("DocumentNFT")).deploy();
+  const change = await (await ethers.getContractFactory("ChangeUltraVerifier")).deploy();
+  const work = await (await ethers.getContractFactory("WorkUltraVerifier")).deploy();
   // Create a config object
   const config = {
-    chainId: publicClient.chain.id,
-    verifier: verifier.address,
+    chainId: 0,//publicClient.chain.iSd,
+    //verifier: verifier.address,
+    work: work.address,
+    change: change.address,
+    document: document.address,
   };
 
   // Print the config
