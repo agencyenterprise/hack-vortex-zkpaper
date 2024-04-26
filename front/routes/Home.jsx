@@ -1,4 +1,3 @@
-//create a simple home component
 import React from "react";
 import { Button } from "../components/ui/button";
 

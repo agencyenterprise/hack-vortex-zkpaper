@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useOffChainVerification } from "../hooks/useOffChainVerification.jsx";
 import { useProofGeneration } from "../hooks/useProofGeneration.jsx";
+import Footer from "./Footer.jsx";
 import Header from "./Header.jsx";
 
 function Component() {
@@ -26,11 +27,7 @@ function Component() {
     <main>
       <Header />
       <Outlet />
-      {/* <Header /> */}
-
-      {/* <Header />
-      <Editor />
-      <ViewDocument /> */}
+      <Footer />
       {/* <form
         className="container"
         onSubmit={submit}
