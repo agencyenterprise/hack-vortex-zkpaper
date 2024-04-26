@@ -24,9 +24,11 @@ function Component() {
   };
 
   return (
-    <main>
+    <main className="flex flex-col min-h-screen">
       <Header />
-      <Outlet />
+      <div className="flex-1">
+        <Outlet />
+      </div>
       <Footer />
       {/* <form
         className="container"
