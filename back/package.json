@@ -1,0 +1,23 @@
+{
+  "name": "zkpaper-backend",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^20.12.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongodb": "^6.5.0",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./bin/index.js",
+    "dev": "nodemon ./src/index.ts"
+  }
+}
