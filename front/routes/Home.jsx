@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 
 const features = ["Pay with crypto", "No characters limit", "Untraceable"];
@@ -16,26 +17,28 @@ const Home = () => {
           the content of the documents, not even our application.
         </div>
         <div className="flex flex-wrap items-center justify-center gap-8">
-          <Button
-            variant="primary"
-            className="flex items-center gap-2 justify-center py-6"
-          >
-            Create Document{" "}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="17"
-              height="17"
-              viewBox="0 0 17 17"
-              fill="none"
+          <Link to="/new-document">
+            <Button
+              variant="primary"
+              className="flex items-center gap-2 justify-center py-6"
             >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M8.73429 3.13434C9.04671 2.82192 9.55324 2.82192 9.86566 3.13434L14.6657 7.93434C14.9781 8.24676 14.9781 8.75329 14.6657 9.06571L9.86566 13.8657C9.55324 14.1781 9.04671 14.1781 8.73429 13.8657C8.42187 13.5533 8.42187 13.0468 8.73429 12.7343L12.1686 9.30002L2.89998 9.30003C2.45815 9.30002 2.09998 8.94185 2.09998 8.50002C2.09998 8.0582 2.45815 7.70002 2.89998 7.70002H12.1686L8.73429 4.26571C8.42187 3.95329 8.42187 3.44676 8.73429 3.13434Z"
-                fill="#0F172A"
-              />
-            </svg>
-          </Button>
+              Create Document{" "}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="17"
+                height="17"
+                viewBox="0 0 17 17"
+                fill="none"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M8.73429 3.13434C9.04671 2.82192 9.55324 2.82192 9.86566 3.13434L14.6657 7.93434C14.9781 8.24676 14.9781 8.75329 14.6657 9.06571L9.86566 13.8657C9.55324 14.1781 9.04671 14.1781 8.73429 13.8657C8.42187 13.5533 8.42187 13.0468 8.73429 12.7343L12.1686 9.30002L2.89998 9.30003C2.45815 9.30002 2.09998 8.94185 2.09998 8.50002C2.09998 8.0582 2.45815 7.70002 2.89998 7.70002H12.1686L8.73429 4.26571C8.42187 3.95329 8.42187 3.44676 8.73429 3.13434Z"
+                  fill="#0F172A"
+                />
+              </svg>
+            </Button>
+          </Link>
           <Button
             variant="secondary"
             className="flex items-center gap-2 justify-center py-6"
@@ -142,12 +145,14 @@ const Home = () => {
               Peace of mind knowing that no one will ever able to read your
               documents
             </div>
-            <Button
-              variant={"primary"}
-              className="w-fit"
-            >
-              Create Document
-            </Button>
+            <Link to="/new-document">
+              <Button
+                variant={"primary"}
+                className="w-fit"
+              >
+                Create Document
+              </Button>
+            </Link>
           </div>
           <div className="flex-1">
             <img src="/features.png" />
