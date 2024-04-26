@@ -83,3 +83,7 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.ql-toolbar svg * {
+  fill: red;
+}

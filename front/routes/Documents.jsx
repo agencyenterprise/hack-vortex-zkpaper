@@ -149,7 +149,12 @@ const Documents = () => {
                     >
                       <div className="mb-4">No results.</div>
                       <Link to="/new-document ">
-                        <Button variant={"secondary"}>Create a Document</Button>
+                        <Button
+                          variant={"secondary"}
+                          className="bg-transparent"
+                        >
+                          Create a Document
+                        </Button>
                       </Link>
                     </TableCell>
                   </TableRow>
