@@ -1,8 +1,8 @@
-import React from 'react'
-import { useState } from "react";
+import React, { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import ViewDocument from "./ViewDocument";
+import { Button } from "./ui/button";
 
 export default function Editor() {
   const [value, setValue] = useState("");
@@ -39,6 +39,7 @@ export default function Editor() {
 
   return (
     <div className="max-w-3xl m-auto">
+      <Button>click me</Button>
       <ReactQuill
         theme="snow"
         value={value}
