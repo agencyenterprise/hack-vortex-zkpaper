@@ -24,6 +24,9 @@
     "@nomicfoundation/hardhat-toolbox-viem": "1.0.0",
     "@nomicfoundation/hardhat-viem": "1.0.0",
     "@openzeppelin/contracts": "4.9.3",
+    "@tanstack/react-query": "^5.32.0",
+    "@thirdweb-dev/react": "^4.6.10",
+    "@thirdweb-dev/sdk": "^4.0.71",
     "dotenv": "^16.0.3",
     "hardhat": "^2.19.2",
     "openzeppelin-solidity": "^3.4.2",
@@ -31,8 +34,7 @@
     "react-dom": "^18.2.0",
     "react-quill": "^2.0.0",
     "react-toastify": "^9.1.1",
-    "typechain": "^8.1.0",
-    "viem": "1.16.6"
+    "typechain": "^8.1.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
@@ -41,15 +43,18 @@
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.15.5",
     "@types/react": "^18.0.26",
+    "@vitejs/plugin-react": "^4.2.1",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "chai": "^4.2.0",
-    "ethers": "^6.12.0",
+    "ethers": "^5",
     "hardhat-gas-reporter": "^1.0.9",
+    "husky": "^9.0.11",
     "solidity-coverage": "^0.8.5",
     "tailwindcss": "^3.4.3",
     "ts-node": "^10.9.1",
     "typescript": "~5.0.4",
+    "viem": "1.16.6",
     "vite": "^5.0.6",
-    "wagmi": "^1.4.8"
+    "vite-plugin-node-polyfills": "^0.21.0"
   }
 }
