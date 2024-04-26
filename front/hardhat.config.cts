@@ -36,7 +36,7 @@ const config: HardhatUserConfig = {
     },
   },
   paths: {
-    sources: './circuit',
+    sources: './circuits',
   },
 };
 

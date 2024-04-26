@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import hre from 'hardhat';
-
+import pkg from 'hardhat';
+const { ethers } = pkg;
 import { Noir } from '@noir-lang/noir_js';
 import { BarretenbergBackend } from '@noir-lang/backend_barretenberg';
 
@@ -9,7 +9,7 @@ import { CompiledCircuit, ProofData } from '@noir-lang/types';
 import { join, resolve } from 'path';
 
 async function getCircuit() {
-  const basePath = resolve(join('./circuit'));
+  const basePath = resolve(join('./circuits/change'));
   const fm = createFileManager(basePath);
   const result = await compile(fm);
   if (!('program' in result)) {
@@ -24,7 +24,7 @@ describe('It compiles noir program code, receiving circuit bytes and abi object.
 
   before(async () => {
     const compiled = await getCircuit();
-    const verifierContract = await hre.viem.deployContract('UltraVerifier');
+    const verifierContract = await ethers.deployContract('UltraVerifier');
 
     const verifierAddr = verifierContract.address;
     console.log(`Verifier deployed to ${verifierAddr}`);
@@ -36,7 +36,7 @@ describe('It compiles noir program code, receiving circuit bytes and abi object.
   });
 
   it('Should generate valid proof for correct input', async () => {
-    const input = { x: 1, y: 2 };
+    const input = { x: [1, 2], y: "7853200120776062878684798364095072458815029376092732009249414926327459813530" };
     // Generate proof
     correctProof = await noir.generateProof(input);
     expect(correctProof.proof instanceof Uint8Array).to.be.true;
@@ -49,7 +49,7 @@ describe('It compiles noir program code, receiving circuit bytes and abi object.
 
   it('Should fail to generate valid proof for incorrect input', async () => {
     try {
-      const input = { x: 1, y: 1 };
+      const input = { x: [1, 2], y: 0 };
       const incorrectProof = await noir.generateProof(input);
     } catch (err) {
       // TODO(Ze): Not sure how detailed we want this test to be
