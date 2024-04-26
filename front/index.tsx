@@ -28,18 +28,7 @@ const client = createThirdwebClient({
 });
 const wallets = [
   createWallet("io.metamask"),
-  walletConnect(),
-  inAppWallet({
-    auth: {
-      options: [
-        "email",
-        "google",
-        "apple",
-        "facebook",
-        "phone",
-      ],
-    },
-  }),
+
 ];
 
 const queryClient = new QueryClient()
