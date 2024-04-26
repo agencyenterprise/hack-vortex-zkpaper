@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import ViewDocument from "./ViewDocument";
-import { Button } from "./ui/button";
 
 export default function Editor() {
   const [value, setValue] = useState("");
@@ -39,25 +37,11 @@ export default function Editor() {
 
   return (
     <div className="max-w-3xl m-auto">
-      <Button>click me</Button>
       <ReactQuill
         theme="snow"
         value={value}
         onChange={onChange}
       />
-      <div className="mt-4">
-        <h2 className="text-xl font-semibold">Stats</h2>
-        <p>
-          Characters count:{" "}
-          {characters.typed + characters.pasted - characters.deleted}
-        </p>
-        <p>Characters typed: {characters.typed}</p>
-        <p>Characters pasted: {characters.pasted}</p>
-        <p>Characters deleted: {characters.deleted}</p>
-      </div>
-      <div className="mt-4">
-        <ViewDocument data={value} />
-      </div>
     </div>
   );
 }

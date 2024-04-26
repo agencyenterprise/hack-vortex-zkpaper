@@ -17,6 +17,7 @@ import Component from "./components/index";
 import "./styles/globals.css";
 
 import Documents from "./routes/Documents.jsx";
+import NewDocument from "./routes/NewDocument.jsx";
 
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Home from "./routes/Home.jsx";
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
       {
         path: "/documents",
         element: <Documents />,
+      },
+      {
+        path: "/new-document",
+        element: <NewDocument />,
       },
     ],
   },

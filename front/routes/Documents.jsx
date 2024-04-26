@@ -19,24 +19,24 @@ import {
 } from "../components/ui/table";
 
 const data = [
-  // {
-  //   id: "m5gr84i9",
-  //   name: "My little poem",
-  //   creationDate: "Apr 25, 2024",
-  //   shared: "Zk23raf...",
-  // },
-  // {
-  //   id: "3u1reuv4",
-  //   name: "How to cook",
-  //   creationDate: "Apr 25, 2024",
-  //   shared: "Zk23raf...",
-  // },
-  // {
-  //   id: "derv1ws0",
-  //   name: "when the sun goes down",
-  //   creationDate: "Apr 25, 2024",
-  //   shared: "Zk23raf...",
-  // },
+  {
+    id: "m5gr84i9",
+    name: "My little poem",
+    creationDate: "Apr 25, 2024",
+    shared: "Zk23raf...",
+  },
+  {
+    id: "3u1reuv4",
+    name: "How to cook",
+    creationDate: "Apr 25, 2024",
+    shared: "Zk23raf...",
+  },
+  {
+    id: "derv1ws0",
+    name: "when the sun goes down",
+    creationDate: "Apr 25, 2024",
+    shared: "Zk23raf...",
+  },
 ];
 
 export const columns = [
