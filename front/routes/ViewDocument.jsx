@@ -42,9 +42,7 @@ const ViewDocumentPage = () => {
     const title = retrievedDocument.documentTitle
     const plainSecret = await decryptWithWallet(secretKey, receiverPublicKey);
     if (retrievedDocument.content) {
-      console.log(retrievedDocument.content)
       const content = aesDecryptMessage(retrievedDocument.content, plainSecret)
-      console.log(content)
       setDoc({ name: title, content })
     }
 

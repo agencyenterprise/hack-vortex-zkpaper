@@ -45,7 +45,7 @@ export default function Header() {
         >
           <img
             src="/logo.png"
-            className="h-8"
+            className="h-12"
           />
         </NavLink>
         <div className="flex lg:hidden">
