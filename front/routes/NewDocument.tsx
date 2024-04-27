@@ -1,16 +1,37 @@
 import React, { useEffect, useState } from "react";
 import Editor from "../components/Editor";
 import { Button } from "../components/ui/button";
-import { useSDK } from "@thirdweb-dev/react";
-import { createDocument } from "../services";
+import { useSDK, useConnectionStatus } from "@thirdweb-dev/react";
+import { appendDocument, createDocument, getDocumentById } from "../services";
 import { toast } from 'react-toastify';
+import { useNavigate, useParams } from "react-router-dom";
 const NewDocument = () => {
   const [documentName, setDocumentName] = useState("Untitled Document");
-  const [editing, setEditing] = useState(false);
+  const [document, setEditing] = useState(false);
   const sdk = useSDK()
-  const error = (action: string) => toast(`${action}: Error performing this request! Please try again later.`, { type: "error" });
-  const success = (action: string) => toast(`${action}: Request successful!`, { type: "success" });
+  const info = (msg: string) => toast(msg, { type: "info" });
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const connectionStatus = useConnectionStatus();
+  useEffect(() => {
+    if (!id) {
+      navigate("/")
+    }
+    hasDocument()
+  }, [])
+  const hasDocument = async () => {
+    const document = await getDocumentById(id!)
+    if (!document) {
+      navigate("/")
+    }
+  }
 
+  useEffect(() => {
+    if (connectionStatus == "disconnected") {
+      info("Please connect your wallet to continue")
+      navigate("/")
+    }
+  }, [connectionStatus])
   useEffect(() => {
 
     if ((window["ethereum"].providers || []).length > 1) {
@@ -64,14 +85,14 @@ const NewDocument = () => {
   const saveDocument = async () => {
     const message = "text_random"
     const { encryptionKey, signature, account: userAccount } = await retrieveKeyAndSign()
-    return await createDocument(userAccount, signature, message, encryptionKey)
+    await appendDocument(userAccount, signature, message, encryptionKey, id!)
   }
   return (
-    <div className="max-w-3xl m-auto flex flex-col items-center text-white">
+    <div className="container m-auto flex flex-col items-center text-white">
       <div className="w-full">
         <div className="flex mt-4 mb-8 gap-4 justify-between">
           <div className="w-full">
-            {editing ? (
+            {document ? (
               <div className="w-full flex">
                 <input
                   type="text"
@@ -181,30 +202,9 @@ const NewDocument = () => {
                 />
               </svg>
             </Button>
-            <Button
-              variant={"secondary"}
-              className="flex items-center gap-2"
-            >
-              New{" "}
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M6.00004 1.33337V10.6667M1.33337 6.00004H10.6667"
-                  stroke="#67E8F9"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </Button>
           </div>
         </div>
-        <Editor documentName={documentName} />
+        <Editor documentName={documentName} id={id} setTitle={setDocumentName} />
       </div>
     </div>
   );

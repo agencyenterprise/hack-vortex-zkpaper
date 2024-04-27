@@ -25,16 +25,27 @@ export const me = async (userPublicKey: string, userSignature: string, userSigna
         return null
     }
 }
-
-export const createDocument = async (receiverPublicKey: string, receiverSignature: string, receiverSignatureMessage: string, userEncryptionKey: string = "") => {
+export const createDocument = async (receiverPublicKey: string, receiverSignature: string, receiverSignatureMessage: string, contentTitle: string = "Untitled") => {
     try {
-        const tabID = getTabID();
-        if (userEncryptionKey) {
-            console.log("Running registeredUser")
-            await registeredUser(receiverPublicKey, receiverSignature, receiverSignatureMessage, userEncryptionKey)
-        }
+        const response = await client.post('/document/create', {
+            contentTitle,
+            receiverPublicKey,
+            receiverSignature,
+            receiverSignatureMessage
+        })
+        success("Create document")
+        return response.data.message.insertedId
+    } catch (err) {
+        error("Create document")
+        return null
+    }
+}
+
+export const appendDocument = async (receiverPublicKey: string, receiverSignature: string, receiverSignatureMessage: string, userEncryptionKey: string, externalId: string) => {
+    try {
+        await registeredUser(receiverPublicKey, receiverSignature, receiverSignatureMessage, userEncryptionKey)
         console.log("Running addLocalDocument")
-        const documentRecord = await getLocalDocument(tabID)
+        const documentRecord = await getLocalDocument(externalId)
         const documentContent = documentRecord?.content
         console.log("running proof of work")
         const proofOfWork = await runProof({ num_writes: +(documentRecord?.num_writes || 0) as number, num_pastes: 0 }, "work")
@@ -51,22 +62,20 @@ export const createDocument = async (receiverPublicKey: string, receiverSignatur
         console.log("encrypting...")
         const document = await aesEncryptMessage(documentContent!, decryptedAesKey)
         console.log(document, 'encryptedDocument')
-        const response = await client.post('/document/create', {
+        const response = await client.post('/document/append', {
             document,
+            documentId: externalId,
             proofOfWork,
             receiverPublicKey,
             receiverSignature,
             receiverSignatureMessage,
             documentTitle: documentRecord?.contentTitle || ""
         })
-        success("Create document")
-        console.log(response)
-        await addLocalDocument(documentContent!, documentRecord?.contentTitle || "", receiverPublicKey, +(documentRecord?.num_writes || 0), 0, response.data.message.insertedId)
-        console.log("External ID added!")
+        success("Append document")
         return response.data
     } catch (err) {
         console.log(err)
-        error("Create document")
+        error("Append document")
         return null
     }
 }
@@ -107,10 +116,8 @@ export const createSharedDocument = async (documentId: string, receiverPublicKey
 export const getDocumentById = async (documentId: string) => {
     try {
         const response = await client.get(`/document/${documentId}`)
-        success("Retrieve document")
         return response.data
     } catch (err) {
-        error("Retrieve document")
         return null
     }
 }
@@ -152,13 +159,10 @@ export const getTabID = () => {
 }
 
 
-export const addLocalDocument = async (document: string, contentTitle: string, pubkey: string, num_writes: number, num_pastes: number, externalId?: string) => {
-
-    const tabID = getTabID();
-    const documentRecord = await db.documents.get(tabID);
-    //console.log(documentRecord, document, contentTitle, pubkey)
+export const addLocalDocument = async (document: string, contentTitle: string, pubkey: string, num_writes: number, num_pastes: number, externalId: string) => {
+    const documentRecord = await db.documents.get(externalId);
     if (documentRecord) {
-        await db.documents.update(tabID, {
+        await db.documents.update(externalId, {
             content: document,
             contentTitle,
             pubkey,
@@ -166,19 +170,20 @@ export const addLocalDocument = async (document: string, contentTitle: string, p
             num_pastes,
             externalId,
         });
-        return tabID;
+        return externalId;
     }
     const id = await db.documents.add({
-        id: tabID,
+        id: externalId,
         content: document,
         contentTitle,
         pubkey,
         num_writes,
-        num_pastes
+        num_pastes,
+        externalId
     });
     return id;
 }
 
-export const getLocalDocument = async (id: number) => {
+export const getLocalDocument = async (id: string) => {
     return db.documents.get(id);
 }

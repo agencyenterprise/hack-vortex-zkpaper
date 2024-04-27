@@ -5,7 +5,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'react-quill/dist/quill.snow.css';
 import { ToastContainer } from 'react-toastify';
 import Component from './components/index';
-import EComponent from "./components/encryption.js"
 import initNoirC from '@noir-lang/noirc_abi';
 import initACVM from '@noir-lang/acvm_js';
 import "./styles/globals.css";
@@ -78,11 +77,19 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
+        path: "*",
+        element: <Home />,
+      },
+      {
         path: "/documents",
         element: <Documents />,
       },
       {
-        path: "/new-document",
+        path: "/document/editing/:id",
+        element: <NewDocument />,
+      },
+      {
+        path: "/document/editing",
         element: <NewDocument />,
       },
       {
@@ -105,7 +112,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
         <InitWasm>
           <RouterProvider router={router} />
-          <EComponent />
           <ToastContainer />
         </InitWasm>
       </QueryClientProvider>

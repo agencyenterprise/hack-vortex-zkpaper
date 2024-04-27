@@ -1,23 +1,47 @@
 import React, { useEffect, useState } from "react";
 import ReactQuill from "react-quill";
-import { addLocalDocument } from "../services/index";
+import { addLocalDocument, getDocumentById } from "../services/index";
 import { useSDK } from "@thirdweb-dev/react"
+import { aesDecryptMessage, decryptWithWallet } from "../utils/encryption";
+import { useNavigate } from "react-router";
 
 
 
 export default function Editor(props) {
-  const { documentName } = props;
+  const { documentName, id, setTitle } = props;
   const [value, setValue] = useState("");
   const [pubKey, setPubKey] = useState("");
   const sdk = useSDK();
-
+  const navigate = useNavigate();
   useEffect(() => {
     const timer = setInterval(async () => {
       // Use the current value from the ref
-      await addLocalDocument(value, documentName, pubKey, characters.typed, characters.pasted);
-    }, 5000);
+      await addLocalDocument(value, documentName, pubKey, characters.typed + characters.pasted + characters.deleted, 0, id);
+    }, 1000);
     return () => clearInterval(timer);
   }, [documentName, pubKey, value]);
+  useEffect(() => {
+    hasDocument()
+  }, [])
+  const hasDocument = async () => {
+    const document = await getDocumentById(id)
+    if (!document) {
+      return navigate("/")
+    }
+    console.log(document)
+    const { receiverPublicKey, secretKey, document: retrievedDocument } = document
+    console.log(document)
+    const title = retrievedDocument.documentTitle
+    const plainSecret = await decryptWithWallet(secretKey, receiverPublicKey);
+    if (retrievedDocument.content) {
+      console.log(retrievedDocument.content)
+      const content = aesDecryptMessage(retrievedDocument.content, plainSecret)
+      console.log(content)
+      setValue(content)
+      setTitle(title)
+    }
+
+  }
   useEffect(() => {
     const getPubKey = async () => {
       try {
@@ -62,7 +86,7 @@ export default function Editor(props) {
   };
 
   return (
-    <div className="max-w-3xl m-auto">
+    <div className="m-auto p-4  bg-secondary">
       <ReactQuill
         theme="snow"
         value={value}

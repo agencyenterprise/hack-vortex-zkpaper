@@ -5,13 +5,13 @@
 import Dexie, { Table } from 'dexie';
 
 export interface Document {
-    id?: number;
+    id?: string;
     content: string;
     contentTitle: string
     pubkey: string;
     num_writes: number;
     num_pastes: number;
-    externalId?: string;
+    externalId: string;
 }
 
 export class DocumentDB extends Dexie {

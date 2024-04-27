@@ -9,18 +9,19 @@ export function generateSecret(size = 32) {
     return { secretBuffer: secret, secret: bufferToString(secret) };
 }
 
-export async function aesEncryptMessage(message: string, secret: string) {
+export async function aesEncryptMessage(message, secret) {
     return Aes.encrypt(message, secret).toString()
 }
 
-export function aesDecryptMessage(encryptedMessage: string, secret: string) {
+export function aesDecryptMessage(encryptedMessage, secret) {
+    console.log(encryptedMessage, secret, 'encryptedMessage, secret')
     return Aes.decrypt(encryptedMessage, secret).toString(Utf8Encoding)
 }
 
-export function bufferToString(buffer: Buffer) {
+export function bufferToString(buffer) {
     return buffer.toString('hex')
 }
-// export function decryptWithWallet(encryptedText: string, privateKey: string) {
+// export function decryptWithWallet(encryptedText, privateKey) {
 
 //     const encryptedObj = JSON.parse(encryptedText)
 //     console.log(encryptedObj, 'encryptedObj')
@@ -34,7 +35,7 @@ export function bufferToString(buffer: Buffer) {
 // }
 
 
-export async function decryptWithWallet(encryptedMessage: string, userPubKey: string) {
+export async function decryptWithWallet(encryptedMessage, userPubKey) {
     return await window["ethereum"]
         .request({
             method: 'eth_decrypt',
@@ -44,7 +45,7 @@ export async function decryptWithWallet(encryptedMessage: string, userPubKey: st
 }
 
 
-export function encryptWithWallet(plainText: string, publicKey: string) {
+export function encryptWithWallet(plainText, publicKey) {
     const encryptedObj = sigUtil.encrypt({
         publicKey: publicKey,
         data: plainText,
@@ -55,7 +56,7 @@ export function encryptWithWallet(plainText: string, publicKey: string) {
     return encryptedText
 }
 
-export function encryptConst(plainText: string, publicKey: string) {
+export function encryptConst(plainText, publicKey) {
 
     const encryptedObj = encrypt({
         publicKey: publicKey,

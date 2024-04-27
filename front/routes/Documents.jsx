@@ -8,7 +8,7 @@ import {
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
-
+import { redirect } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -81,7 +81,7 @@ const Documents = () => {
     <div className="max-w-7xl m-auto">
       <div className="flex items-center justify-between  px-8 mt-4 mb-8">
         <h3 className="text-white">Documents</h3>
-        <Link to={"/new-document"}>
+        <Link to={"/document/editing"}>
           <Button
             variant="secondary"
             className="flex items-center gap-2 w-fit"
@@ -118,9 +118,9 @@ const Documents = () => {
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                         </TableHead>
                       );
                     })}
@@ -148,14 +148,17 @@ const Documents = () => {
                       className="h-24 text-center"
                     >
                       <div className="mb-4">No results.</div>
-                      <Link to="/new-document ">
-                        <Button
-                          variant={"secondary"}
-                          className="bg-transparent"
-                        >
-                          Create a Document
-                        </Button>
-                      </Link>
+                      {/* <Link to="/document/editing "> */}
+                      <Button
+                        variant={"secondary"}
+                        className="bg-transparent"
+                        onClick={() => {
+                          redirect("/document/editing/kjaskjaksj");
+                        }}
+                      >
+                        Create a Document
+                      </Button>
+                      {/* </Link> */}
                     </TableCell>
                   </TableRow>
                 )}
