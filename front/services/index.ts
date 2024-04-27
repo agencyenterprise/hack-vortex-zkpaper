@@ -122,6 +122,18 @@ export const getDocumentById = async (documentId: string) => {
         return null
     }
 }
+export const getUserDocuments = async (address: string, signature: string, message: string) => {
+    try {
+        const response = await client.post(`/documents`, {
+            userPublicKey: address,
+            userSignature: signature,
+            userSignatureMessage: message
+        })
+        return response.data
+    } catch (err) {
+        return null
+    }
+}
 
 export const retrieveSharedDocumentById = async (sharedDocumentId: string) => {
     try {
