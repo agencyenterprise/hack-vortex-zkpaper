@@ -1,14 +1,24 @@
 import { ObjectId } from "mongodb";
 import { connectToDatabase } from "./database/mongodb";
 
-interface DocumentModel {
+interface AppendDocumentModel {
     _id?: ObjectId;
     content: string;
     documentTitle?: string;
     proofOfWork: string;
-    createdAt: Date;
+    receiverPublicKey?: string;
 
 }
+
+interface DocumentModel {
+    _id?: ObjectId;
+    createdAt: Date;
+    documentTitle?: string;
+    receiverPublicKey: string;
+
+}
+
+
 
 interface UserModel {
     _id?: ObjectId;
@@ -49,7 +59,8 @@ export const createSharedDocument = async (documentId: string, receiverPublicKey
     const { db } = await connectToDatabase();
 
     const collection = db.collection("users");
-
+    receiverPublicKey = receiverPublicKey.toLowerCase()
+    senderPublicKey = senderPublicKey.toLowerCase()
     const users = await collection.find({ publicKey: { $in: [receiverPublicKey, senderPublicKey] } }).toArray();
 
     const sender = users.find(user => user.publicKey === senderPublicKey);
@@ -86,7 +97,8 @@ export const retrieveSharedDocument = async (sharedDocumentId: string, receiverP
     const { db } = await connectToDatabase();
 
     const collection = db.collection<SharedDocumentModel>("sharedDocuments");
-
+    receiverPublicKey = receiverPublicKey.toLowerCase()
+    senderPublicKey = senderPublicKey.toLowerCase()
     const sharedDocument = await collection.findOne({ _id: new ObjectId(sharedDocumentId) });
 
     if (!sharedDocument) {
@@ -104,7 +116,8 @@ export const retrieveSharedDocument = async (sharedDocumentId: string, receiverP
 
 export const getSharedDocuments = async (receiverPublicKey: string, senderPublicKey: string) => {
     const { db } = await connectToDatabase();
-
+    receiverPublicKey = receiverPublicKey.toLowerCase()
+    senderPublicKey = senderPublicKey.toLowerCase()
     const collection = db.collection<SharedDocumentModel>("sharedDocuments");
 
     const sharedDocuments = await collection.find({ receiverPublicKey, senderPublicKey });
@@ -123,18 +136,26 @@ export const uploadSharedDocument = async (sharedDocumentId: string, content: st
     return collection.updateOne({ _id: new ObjectId(sharedDocumentId) }, { $set: { content } });
 }
 
-export const createDocument = async (documentContent: string, proofOfWork: string, documentTitle: string) => {
+export const appendDocument = async (documentId: string, documentContent: string, proofOfWork: string, documentTitle: string) => {
     const { db } = await connectToDatabase();
 
+    const collection = db.collection<AppendDocumentModel>("documents");
+
+    return collection.updateOne({ _id: new ObjectId(documentId) }, { $set: { content: documentContent, proofOfWork, documentTitle } });
+}
+
+export const createDocument = async (receiverPublicKey: string, documentTitle: string = "Untitled") => {
+    const { db } = await connectToDatabase();
+    receiverPublicKey = receiverPublicKey.toLowerCase()
     const collection = db.collection<DocumentModel>("documents");
 
-    return collection.insertOne({ content: documentContent, createdAt: new Date(), proofOfWork, documentTitle });
+    return collection.insertOne({ createdAt: new Date(), documentTitle, receiverPublicKey: receiverPublicKey.toLowerCase() });
 }
 
 export const getDocumentById = async (documentId: string) => {
     const { db } = await connectToDatabase();
 
-    const collection = db.collection<DocumentModel>("documents");
+    const collection = db.collection<AppendDocumentModel>("documents");
 
     return collection.findOne({ _id: new ObjectId(documentId) });
 }
@@ -150,12 +171,11 @@ export const getUserByPublicKey = async (publicKey: string) => {
     const { db } = await connectToDatabase();
 
     const collection = db.collection<UserModel>("users");
-
-    return collection.findOne({ publicKey });
+    return collection.findOne({ publicKey: publicKey.toLowerCase() });
 }
 export const createUser = async (publicKey: string, secretKey: string) => {
     const { db } = await connectToDatabase();
-
+    publicKey = publicKey.toLowerCase()
     const collection = db.collection<UserModel>("users");
 
     return await collection.insertOne({ publicKey, secretKey, createdAt: new Date() });
@@ -171,8 +191,8 @@ export const getUserDocuments = async (publicKey: string, limit: number = 10, sk
         skip = 0
     }
     const { db } = await connectToDatabase();
-
-    const collection = db.collection<DocumentModel>("documents");
+    publicKey = publicKey.toLowerCase()
+    const collection = db.collection<AppendDocumentModel>("documents");
 
     return await collection.find({ publicKey }, { limit, skip }).toArray();
 }
