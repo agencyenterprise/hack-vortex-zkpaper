@@ -2,28 +2,46 @@ import { ObjectId } from "mongodb";
 import { connectToDatabase } from "./database/mongodb";
 
 interface DocumentModel {
-    _id: ObjectId;
+    _id?: ObjectId;
     content: string;
+    documentTitle?: string;
+    proofOfWork: string;
     createdAt: Date;
+
 }
 
 interface UserModel {
-    _id: ObjectId;
+    _id?: ObjectId;
     publicKey: string;
     secretKey: string;
     createdAt: Date;
 }
 
 interface SharedDocumentModel {
-    _id: ObjectId;
+    _id?: ObjectId;
     documentId: ObjectId;
     receiverId: ObjectId;
     senderId: ObjectId;
     senderSecretKey: string;
     receiverSecretKey: string;
+    receiverPublicKey: string;
+    senderPublicKey: string;
     title?: string;
     content?: string;
     createdAt: Date;
+}
+interface UploadSharedDocumentModel {
+    _id?: ObjectId;
+    documentId?: ObjectId;
+    receiverId?: ObjectId;
+    senderId?: ObjectId;
+    senderSecretKey?: string;
+    receiverSecretKey?: string;
+    receiverPublicKey?: string;
+    senderPublicKey?: string;
+    title?: string;
+    content: string;
+    createdAt?: Date;
 }
 
 export const createSharedDocument = async (documentId: string, receiverPublicKey: string, senderPublicKey: string, senderAesKey: string, receiverAesKey: string) => {
@@ -49,7 +67,7 @@ export const createSharedDocument = async (documentId: string, receiverPublicKey
         throw new Error("Document not found");
     }
 
-    const collectionSharedDocuments = db.collection("sharedDocuments");
+    const collectionSharedDocuments = db.collection<SharedDocumentModel>("sharedDocuments");
 
     return collectionSharedDocuments.insertOne({
         documentId: new ObjectId(documentId),
@@ -57,39 +75,60 @@ export const createSharedDocument = async (documentId: string, receiverPublicKey
         senderId: sender._id,
         senderSecretKey: senderAesKey,
         receiverSecretKey: receiverAesKey,
+        senderPublicKey,
+        receiverPublicKey,
         createdAt: new Date()
     });
 
 }
 
+export const retrieveSharedDocument = async (sharedDocumentId: string, receiverPublicKey: string, senderPublicKey: string) => {
+    const { db } = await connectToDatabase();
+
+    const collection = db.collection<SharedDocumentModel>("sharedDocuments");
+
+    const sharedDocument = await collection.findOne({ _id: new ObjectId(sharedDocumentId) });
+
+    if (!sharedDocument) {
+        throw new Error("Shared Document not found");
+    }
+    const hasReceiverPublicKey = sharedDocument.receiverPublicKey !== receiverPublicKey
+    const hasSenderPublicKey = sharedDocument.senderPublicKey !== senderPublicKey
+    if (!hasReceiverPublicKey && !hasSenderPublicKey) {
+        throw new Error("User not authorized to view this document");
+    }
+
+    return sharedDocument;
+}
+
+
+export const getSharedDocuments = async (receiverPublicKey: string, senderPublicKey: string) => {
+    const { db } = await connectToDatabase();
+
+    const collection = db.collection<SharedDocumentModel>("sharedDocuments");
+
+    const sharedDocuments = await collection.find({ receiverPublicKey, senderPublicKey });
+    const documents = await sharedDocuments.toArray();
+    if (!documents.length) {
+        throw new Error("Shared s not found");
+    }
+    return sharedDocuments;
+}
+
 export const uploadSharedDocument = async (sharedDocumentId: string, content: string) => {
     const { db } = await connectToDatabase();
 
-    const collection = db.collection("sharedDocuments");
+    const collection = db.collection<UploadSharedDocumentModel>("sharedDocuments");
 
     return collection.updateOne({ _id: new ObjectId(sharedDocumentId) }, { $set: { content } });
 }
 
-export const acceptSharedDocument = async (sharedDocumentId: string, receiverPublicKey: string) => {
+export const createDocument = async (documentContent: string, proofOfWork: string, documentTitle: string) => {
     const { db } = await connectToDatabase();
 
-    const collection = db.collection("users");
+    const collection = db.collection<DocumentModel>("documents");
 
-    const users = await collection.find({ publicKey: receiverPublicKey }).toArray();
-
-    const receiver = users.find(user => user.publicKey === receiverPublicKey);
-
-    if (!receiver) {
-        throw new Error("User not found");
-    }
-}
-
-export const createDocument = async (documentContent: string) => {
-    const { db } = await connectToDatabase();
-
-    const collection = db.collection("documents");
-
-    return collection.insertOne({ content: documentContent, createdAt: new Date() });
+    return collection.insertOne({ content: documentContent, createdAt: new Date(), proofOfWork, documentTitle });
 }
 
 export const getDocumentById = async (documentId: string) => {
@@ -114,11 +153,26 @@ export const getUserByPublicKey = async (publicKey: string) => {
 
     return collection.findOne({ publicKey });
 }
+export const createUser = async (publicKey: string, secretKey: string) => {
+    const { db } = await connectToDatabase();
 
+    const collection = db.collection<UserModel>("users");
+
+    return await collection.insertOne({ publicKey, secretKey, createdAt: new Date() });
+}
 export const getUserDocuments = async (publicKey: string, limit: number = 10, skip: number = 0) => {
+    if (!limit || limit < 0) {
+        limit = 10
+    }
+    if (limit > 20) {
+        limit = 20
+    }
+    if (!skip || skip < 0) {
+        skip = 0
+    }
     const { db } = await connectToDatabase();
 
     const collection = db.collection<DocumentModel>("documents");
 
-    return collection.find({ publicKey }, { limit, skip });
+    return await collection.find({ publicKey }, { limit, skip }).toArray();
 }

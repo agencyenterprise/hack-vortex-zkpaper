@@ -1,20 +1,50 @@
 import { encrypt } from "./cryptography"
-//const sigUtil = require('@metamask/eth-sig-util')
 import * as sigUtil from '@metamask/eth-sig-util'
-export function decryptText(encryptedText: string, privateKey: string) {
+import Aes from "crypto-js/aes";
+import Utf8Encoding from 'crypto-js/enc-utf8'
+import crypto from "crypto";
 
-    const encryptedObj = JSON.parse(encryptedText)
-    console.log(encryptedObj, 'encryptedObj')
-    const decryptedString = sigUtil.decrypt(
-        {
-            encryptedData: encryptedObj,
-            privateKey: privateKey,
-        }
-    )
-    return decryptedString
+export function generateSecret(size = 32) {
+    const secret = crypto.randomBytes(size)
+    return { secretBuffer: secret, secret: bufferToString(secret) };
 }
 
-export function encryptText(plainText: string, publicKey: string) {
+export async function aesEncryptMessage(message: string, secret: string) {
+    return Aes.encrypt(message, secret).toString()
+}
+
+export function aesDecryptMessage(encryptedMessage: string, secret: string) {
+    return Aes.decrypt(encryptedMessage, secret).toString(Utf8Encoding)
+}
+
+export function bufferToString(buffer: Buffer) {
+    return buffer.toString('hex')
+}
+// export function decryptWithWallet(encryptedText: string, privateKey: string) {
+
+//     const encryptedObj = JSON.parse(encryptedText)
+//     console.log(encryptedObj, 'encryptedObj')
+//     const decryptedString = sigUtil.decrypt(
+//         {
+//             encryptedData: encryptedObj,
+//             privateKey: privateKey,
+//         }
+//     )
+//     return decryptedString
+// }
+
+
+export async function decryptWithWallet(encryptedMessage: string, userPubKey: string) {
+    return await window["ethereum"]
+        .request({
+            method: 'eth_decrypt',
+            params: [encryptedMessage, userPubKey],
+        })
+
+}
+
+
+export function encryptWithWallet(plainText: string, publicKey: string) {
     const encryptedObj = sigUtil.encrypt({
         publicKey: publicKey,
         data: plainText,

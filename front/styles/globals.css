@@ -1,6 +1,17 @@
+@import url("./quill.css");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.bg-primary,
+body {
+  background-color: black;
+}
+
+.bg-secondary {
+  background-color: #1e293b;
+}
 
 @layer base {
   :root {
@@ -73,4 +84,15 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.quill .ql-toolbar,
+.quill .ql-container {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #1e293b;
+}
+
+.quill .ql-editor {
+  min-height: 400px;
+  max-height: 400px;
 }

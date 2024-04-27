@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useOffChainVerification } from "../hooks/useOffChainVerification.js";
 import { useProofGeneration } from "../hooks/useProofGeneration.js";
-import Editor from "./Editor.jsx";
-import Header from "./Header.jsx";
-import ViewDocument from "./ViewDocument.jsx";
-import { encryptText } from "../utils/encryption.js";
+import { encryptWithWallet } from "../utils/encryption.js";
 import { useSDK } from "@thirdweb-dev/react";
 import axios from "axios"
-function Component() {
+function EComponent() {
   const [input, setInput] = useState<
     { num_writes: string; num_pastes: string } | undefined
   >();
@@ -26,11 +23,33 @@ function Component() {
 
   }, []);
   function lockLicense() {
-    const encStr = encryptText("oi", buyerEncryptionKey)
+    const encStr = encryptWithWallet("oi", buyerEncryptionKey)
     console.log(encStr, 'encStr')
     setEncryptedMessage(encStr)
   }
+  async function retrieveEncryptionKey() {
+    const accounts = await window["ethereum"].request({ method: 'eth_requestAccounts' })
+    const encryptionKey = await window["ethereum"]
+      .request({
+        method: 'eth_getEncryptionPublicKey',
+        params: [accounts[0]], // you must have access to the specified account
+      })
+    return Buffer.from(encryptionKey).toString()
+
+  }
+
+
+
+
+  async function retrieveKeyAndSign() {
+    const message = "text_random"
+    const encryptionKey = await retrieveEncryptionKey()
+    const signature = await signMessage(message)
+    return { encryptionKey, signature }
+
+  }
   async function signMessage(message: string) {
+    console.log(sdk?.wallet)
     const signature = await sdk!.wallet.sign(message)
     console.log(sdk!.wallet.recoverAddress(message, signature))
     console.log(signature, 'signature')
@@ -42,26 +61,7 @@ function Component() {
     const receiverSignature = await signMessage('oi')
     const receiverPublicKey = await sdk!.wallet.getAddress()
     console.log(receiverSignature, 'signedMessage')
-    fetch('http://localhost:3001/api/document/share/keys/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        documentId: '1',
-        receiverPublicKey,
-        receiverSignature,
-        receiverSignatureMessage: "oi"
-      })
-    }).then((res) => res.json()).then((res) => console.log(res)).catch((err) => console.log(err))
-    // do the same thing with axios
-    const response = await axios.post('http://localhost:3001/api/document/share/keys/create', {
-      documentId: '1',
-      receiverPublicKey,
-      receiverSignature,
-      receiverSignatureMessage: "oi"
-    })
-    console.log(response)
+
 
   }
   function getLicense() {
@@ -103,9 +103,6 @@ function Component() {
 
   return (
     <main>
-      <Header />
-      <Editor />
-      <ViewDocument />
       <form
         className="container"
         onSubmit={submit}
@@ -157,4 +154,4 @@ function Component() {
   );
 }
 
-export default Component;
+export default EComponent;
