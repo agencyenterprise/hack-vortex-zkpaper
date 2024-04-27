@@ -3,6 +3,10 @@ import { getDocumentById, createSharedDocument, appendDocument, uploadSharedDocu
 import { verifySignature } from './utils/signatures';
 const router = express.Router();
 
+router.get("/status", (req, res) => {
+    return res.json({ message: "OK" });
+})
+
 router.post("/document/share/keys/create", async (req, res) => {
     try {
         const { senderAesKey, receiverAesKey, documentId, senderPublicKey, receiverPublicKey, receiverSignature, receiverSignatureMessage } = req.body;
