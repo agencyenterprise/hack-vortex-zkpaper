@@ -3,12 +3,27 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom"; // Changed from 'Link' to 'NavLink'
 import { Button } from "../components/ui/button";
+import { createThirdwebClient } from "thirdweb";
+import { ConnectButton } from "thirdweb/react"
+import { defineChain } from "thirdweb/chains";
+import {
+  createWallet,
+} from "thirdweb/wallets";
+import {
+  ThirdwebProvider,
+  ConnectWallet
+} from "@thirdweb-dev/react";
 
 const navigation = [
   { name: "Home", href: "/" },
   { name: "Documents", href: "/documents" },
 ];
-
+const client = createThirdwebClient({
+  clientId: "1eafd11d31d6d24dfceefb36c3de54d2",
+});
+const wallets = [
+  createWallet("io.metamask"),
+];
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -57,7 +72,9 @@ export default function Header() {
             </NavLink>
           ))}
         </div>
-        <Button variant="primary">Connect Wallet</Button>
+        <div className="flex items-left">
+          <ConnectWallet switchToActiveChain={true} />
+        </div>
       </nav>
       <Dialog
         as="div"

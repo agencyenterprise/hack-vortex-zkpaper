@@ -1,10 +1,74 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Editor from "../components/Editor";
 import { Button } from "../components/ui/button";
+import { useSDK, useConnectionStatus } from "@thirdweb-dev/react";
+import { appendDocument, createDocument, getDocumentById } from "../services";
+import { toast } from 'react-toastify';
+import { useNavigate, useParams } from "react-router-dom";
 const NewDocument = () => {
-  const [documentName, setDocumentName] = React.useState("Untitled Document");
-  const [editing, setEditing] = React.useState(false);
+  const [documentName, setDocumentName] = useState("Untitled Document");
+  const [document, setEditing] = useState(false);
+  const sdk = useSDK()
+  const info = (msg: string) => toast(msg, { type: "info" });
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const connectionStatus = useConnectionStatus();
+  useEffect(() => {
+    if (!id) {
+      navigate("/")
+    }
+    hasDocument()
+  }, [])
+  const hasDocument = async () => {
+    const document = await getDocumentById(id!)
+    if (!document) {
+      navigate("/")
+    }
+  }
 
+  useEffect(() => {
+    if (connectionStatus == "disconnected") {
+      info("Please connect your wallet to continue")
+      navigate("/")
+    }
+  }, [connectionStatus])
+  useEffect(() => {
+
+    if ((window["ethereum"].providers || []).length > 1) {
+      const metamaskProvider = window["ethereum"].providers.find((provider) => provider.isMetaMask);
+      window["ethereum"] = metamaskProvider;
+    }
+
+  }, []);
+  async function retrieveEncryptionKey() {
+    const accounts = await window["ethereum"].request({ method: 'eth_requestAccounts' })
+    const encryptionKey = await window["ethereum"]
+      .request({
+        method: 'eth_getEncryptionPublicKey',
+        params: [accounts[0]], // you must have access to the specified account
+      })
+
+    return { key: Buffer.from(encryptionKey).toString(), account: accounts[0] }
+
+  }
+
+
+
+
+  async function retrieveKeyAndSign() {
+    const message = "text_random"
+    const { key: encryptionKey, account } = await retrieveEncryptionKey()
+    const signature = await signMessage(message)
+    console.log({ encryptionKey, signature, account })
+    return { encryptionKey, signature, account }
+
+  }
+  async function signMessage(message) {
+    const signature = await sdk!.wallet.sign(message)
+    console.log(sdk!.wallet.recoverAddress(message, signature))
+    console.log(signature, 'signature')
+    return signature
+  }
   const handleSaveName = () => {
     setEditing(false);
     if (documentName === "") {
@@ -18,13 +82,17 @@ const NewDocument = () => {
       setDocumentName("");
     }
   };
-
+  const saveDocument = async () => {
+    const message = "text_random"
+    const { encryptionKey, signature, account: userAccount } = await retrieveKeyAndSign()
+    await appendDocument(userAccount, signature, message, encryptionKey, id!)
+  }
   return (
-    <div className="max-w-3xl m-auto flex flex-col items-center text-white">
+    <div className="container m-auto flex flex-col items-center text-white">
       <div className="w-full">
         <div className="flex mt-4 mb-8 gap-4 justify-between">
           <div className="w-full">
-            {editing ? (
+            {document ? (
               <div className="w-full flex">
                 <input
                   type="text"
@@ -84,28 +152,9 @@ const NewDocument = () => {
             <Button
               variant={"secondary"}
               className="flex items-center gap-2"
+              onClick={saveDocument}
             >
-              Import{" "}
-              <svg
-                width="14"
-                height="16"
-                viewBox="0 0 14 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M3.66667 10.6667C2.19391 10.6667 1 9.4728 1 8.00004C1 6.72867 1.88971 5.66511 3.08047 5.39801C3.02779 5.16267 3 4.91794 3 4.66671C3 2.82576 4.49238 1.33337 6.33333 1.33337C7.9462 1.33337 9.29153 2.47887 9.60012 4.00069C9.62225 4.00026 9.64443 4.00004 9.66667 4.00004C11.5076 4.00004 13 5.49243 13 7.33337C13 8.94601 11.8548 10.2912 10.3333 10.6M9 8.66671L7 6.66671M7 6.66671L5 8.66671M7 6.66671L7 14.6667"
-                  stroke="#67E8F9"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </Button>
-            <Button
-              variant={"secondary"}
-              className="flex items-center gap-2"
-            >
-              Export{" "}
+              Save{" "}
               <svg
                 width="16"
                 height="16"
@@ -153,30 +202,9 @@ const NewDocument = () => {
                 />
               </svg>
             </Button>
-            <Button
-              variant={"secondary"}
-              className="flex items-center gap-2"
-            >
-              New{" "}
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M6.00004 1.33337V10.6667M1.33337 6.00004H10.6667"
-                  stroke="#67E8F9"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </Button>
           </div>
         </div>
-        <Editor />
+        <Editor documentName={documentName} id={id} setTitle={setDocumentName} />
       </div>
     </div>
   );
