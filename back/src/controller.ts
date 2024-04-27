@@ -10,6 +10,15 @@ interface AppendDocumentModel {
 
 }
 
+interface ReadDocumentModel {
+    _id?: ObjectId;
+    documentTitle?: string;
+    proofOfWork: string;
+    receiverPublicKey?: string;
+    createdAt: Date;
+
+}
+
 interface DocumentModel {
     _id?: ObjectId;
     createdAt: Date;
@@ -180,7 +189,7 @@ export const createUser = async (publicKey: string, secretKey: string) => {
 
     return await collection.insertOne({ publicKey, secretKey, createdAt: new Date() });
 }
-export const getUserDocuments = async (publicKey: string, limit: number = 10, skip: number = 0) => {
+export const getUserDocuments = async (receiverPublicKey: string, limit: number = 100, skip: number = 0) => {
     if (!limit || limit < 0) {
         limit = 10
     }
@@ -191,8 +200,8 @@ export const getUserDocuments = async (publicKey: string, limit: number = 10, sk
         skip = 0
     }
     const { db } = await connectToDatabase();
-    publicKey = publicKey.toLowerCase()
-    const collection = db.collection<AppendDocumentModel>("documents");
+    receiverPublicKey = receiverPublicKey.toLowerCase()
+    const collection = db.collection<ReadDocumentModel>("documents");
 
-    return await collection.find({ publicKey }, { limit, skip }).toArray();
+    return await collection.find({ receiverPublicKey }, { limit, skip }).project({ content: 0 }).toArray();
 }

@@ -5,10 +5,11 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { redirect } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   Table,
   TableBody,
@@ -17,8 +18,10 @@ import {
   TableHeader,
   TableRow,
 } from "../components/ui/table";
+import { createDocument, getUserDocuments } from "../services";
+import { useConnectionStatus, useSDK } from "@thirdweb-dev/react";
 
-const data = [
+const base = [
   {
     id: "m5gr84i9",
     name: "My little poem",
@@ -41,31 +44,33 @@ const data = [
 
 export const columns = [
   {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => <div>{row.getValue("name")}</div>,
+    accessorKey: "documentTitle",
+    header: "Title",
+    cell: ({ row }) => <Link to={`/document/editing/${row.getValue("_id")}`}>{row.getValue("documentTitle")}</Link>,
   },
   {
-    accessorKey: "creationDate",
+    accessorKey: "_id",
+    header: "ID",
+    cell: ({ row }) => <Link to={`/document/editing/${row.getValue("_id")}`}>{row.getValue("_id")}</Link>,
+  },
+  {
+    accessorKey: "createdAt",
     header: ({ column }) => {
       return <div>Creation Date</div>;
     },
-    cell: ({ row }) => <div>{row.getValue("creationDate")}</div>,
+    cell: ({ row }) => <Link to={`/document/editing/${row.getValue("_id")}`}>{row.getValue("createdAt")}</Link>,
+  }, {
+    accessorKey: "edit",
+    header: "Edit",
+    cell: ({ row }) => <Link to={`/document/editing/${row.getValue("_id")}`}>Edit</Link>,
   },
-  {
-    accessorKey: "shared",
-    header: () => <div className="text-right">Shared</div>,
-    cell: ({ row }) => {
-      return (
-        <div className="text-right font-medium">{row.getValue("shared")}</div>
-      );
-    },
-  },
+
 ];
+
 
 const Documents = () => {
   const [rowSelection, setRowSelection] = React.useState({});
-
+  const [data, setData] = React.useState([]);
   const table = useReactTable({
     data,
     columns,
@@ -77,33 +82,88 @@ const Documents = () => {
       rowSelection,
     },
   });
+  const navigate = useNavigate();
+  const connectionStatus = useConnectionStatus();
+  const error = (msg) => toast(msg, { type: "error" });
+  const success = (msg) => toast(msg, { type: "success" });
+  const info = (msg) => toast(msg, { type: "info" });
+  const sdk = useSDK()
+
+  const retrieveDocuments = async () => {
+    const plainMessage = new Date().getTime().toString()
+    const { signature, address } = await signMessage(plainMessage)
+    const documents = await getUserDocuments(address, signature, plainMessage)
+    if (!documents) {
+      return setData([])
+    }
+    setData(documents.message.documents)
+  }
+
+
+  useEffect(() => {
+
+    if ((window["ethereum"].providers || []).length > 1) {
+      const metamaskProvider = window["ethereum"].providers.find((provider) => provider.isMetaMask);
+      window["ethereum"] = metamaskProvider;
+    }
+
+  }, []);
+  async function signMessage(message) {
+    if (connectionStatus !== "connected") {
+      error("Please connect your wallet")
+      return
+    }
+    const signature = await sdk.wallet.sign(message)
+    const address = sdk.wallet.recoverAddress(message, signature)
+    return { signature, address }
+  }
+  const create = async () => {
+    try {
+      if (connectionStatus == "disconnected") {
+        error("Please connect your wallet")
+        return
+      }
+      const message = new Date().getTime().toString()
+      const { signature, address } = await signMessage(message)
+      const documentId = await createDocument(address, signature, message)
+      if (!documentId) {
+        throw new Error("Failed to create document")
+      }
+      success("Document created successfully!")
+      navigate(`/document/editing/${documentId}`, { replace: true });
+    } catch (e) {
+      console.log(e)
+      error("Failed to create document! Try again later.")
+    }
+
+  }
   return (
     <div className="max-w-7xl m-auto">
       <div className="flex items-center justify-between  px-8 mt-4 mb-8">
         <h3 className="text-white">Documents</h3>
-        <Link to={"/document/editing"}>
-          <Button
-            variant="secondary"
-            className="flex items-center gap-2 w-fit"
+
+        <Button
+          variant="secondary"
+          className="flex items-center gap-2 w-fit"
+          onClick={create}
+        >
+          New{" "}
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            New{" "}
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M6 1.33337V10.6667M1.33333 6.00004H10.6667"
-                stroke="#67E8F9"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </Button>
-        </Link>
+            <path
+              d="M6 1.33337V10.6667M1.33333 6.00004H10.6667"
+              stroke="#67E8F9"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </Button>
       </div>
       <div className="text-white">
         <div className="w-full">
@@ -130,16 +190,21 @@ const Documents = () => {
               <TableBody>
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
+
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell) => (
+
                         <TableCell key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
                           )}
                         </TableCell>
+
                       ))}
                     </TableRow>
+
+
                   ))
                 ) : (
                   <TableRow>
@@ -148,17 +213,10 @@ const Documents = () => {
                       className="h-24 text-center"
                     >
                       <div className="mb-4">No results.</div>
-                      {/* <Link to="/document/editing "> */}
-                      <Button
-                        variant={"secondary"}
-                        className="bg-transparent"
-                        onClick={() => {
-                          redirect("/document/editing/kjaskjaksj");
-                        }}
-                      >
-                        Create a Document
+                      <Button onClick={retrieveDocuments} variant={"secondary"}
+                        className="bg-transparent">
+                        Refresh/Load
                       </Button>
-                      {/* </Link> */}
                     </TableCell>
                   </TableRow>
                 )}
