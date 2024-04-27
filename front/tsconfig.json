@@ -2,10 +2,16 @@
   "compilerOptions": {
     "target": "es2022",
     "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     },
     "allowJs": false,
     "skipLibCheck": true,
@@ -21,13 +27,22 @@
     "jsx": "preserve",
     "noImplicitAny": false,
     "strictNullChecks": true,
-    "incremental": true
+    "incremental": true,
   },
   "ts-node": {
     "experimentalResolver": true,
     "files": true
   },
-  "exclude": ["dist", "node_modules"],
-  "include": ["./test", "./components", "./scripts"],
-  "files": ["hardhat.config.cts"]
+  "exclude": [
+    "dist",
+    "node_modules"
+  ],
+  "include": [
+    "./test",
+    "./components",
+    "./scripts"
+  ],
+  "files": [
+    "hardhat.config.cts"
+  ]
 }

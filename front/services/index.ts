@@ -3,8 +3,9 @@ import { toast } from 'react-toastify';
 import { generateSecret, encryptWithWallet, decryptWithWallet, aesEncryptMessage } from '../utils/encryption'
 import { db } from './db'
 import { runProof } from '../hooks/useProofGeneration';
+import { VITE_API_URL } from './url';
 const client = axios.create({
-    baseURL: 'http://localhost:3001/api',
+    baseURL: VITE_API_URL,
     headers: {
         'Content-Type': 'application/json'
     }
