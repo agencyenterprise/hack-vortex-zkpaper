@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ViewDocument from "../components/ViewDocument";
-import { getDocumentById } from "../services";
+import { getDocumentById, retrieveSharedDocumentById } from "../services";
 import { useNavigate, useParams } from "react-router";
 import { useConnectionStatus, useSDK } from "@thirdweb-dev/react";
 import { aesDecryptMessage, decryptWithWallet } from "../utils/encryption";
@@ -14,11 +14,11 @@ const ViewDocumentPage = () => {
   const sdk = useSDK()
   const [doc, setDoc] = useState(exampleDoc);
   const info = (msg) => toast(msg, { type: "info" });
-  const { id } = useParams();
+  const { sharedDocumentId, documentId } = useParams();
   const navigate = useNavigate();
   const connectionStatus = useConnectionStatus();
   useEffect(() => {
-    if (!id) {
+    if (!sharedDocumentId || !documentId) {
       navigate("/")
     }
     hasDocument()
@@ -32,18 +32,26 @@ const ViewDocumentPage = () => {
 
   }, []);
   const hasDocument = async () => {
-    const document = await getDocumentById(id)
-    if (!document) {
-      return navigate("/")
-    }
-    console.log(document)
-    const { receiverPublicKey, secretKey, document: retrievedDocument } = document
-    console.log(document)
-    const title = retrievedDocument.documentTitle
-    const plainSecret = await decryptWithWallet(secretKey, receiverPublicKey);
-    if (retrievedDocument.content) {
-      const content = aesDecryptMessage(retrievedDocument.content, plainSecret)
-      setDoc({ name: title, content })
+    try {
+      const address = sdk.getSigner()._address
+      const document = await retrieveSharedDocumentById(sharedDocumentId, documentId, address, "", "", "")
+      console.log(document)
+      const sharedDocument = (document.message?.sharedDocument || null)
+      if (!sharedDocument) {
+        return navigate("/")
+      }
+      console.log(sharedDocument)
+      const { receiverPublicKey, receiverSecretKey } = sharedDocument
+      const plainSecret = await decryptWithWallet(receiverSecretKey, receiverPublicKey);
+      const title = document.message?.document.title
+      if (sharedDocument.content) {
+        const content = aesDecryptMessage(sharedDocument.content, plainSecret)
+        setDoc({ name: title, content })
+      }
+    } catch (err) {
+      console.log(err)
+      info("Failed to retrieve document")
+      navigate("/")
     }
 
   }

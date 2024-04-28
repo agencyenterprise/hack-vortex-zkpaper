@@ -93,10 +93,8 @@ const Documents = () => {
     const plainMessage = new Date().getTime().toString()
     const { signature, address } = await signMessage(plainMessage)
     const documents = await getUserDocuments(address, signature, plainMessage)
-    if (!documents) {
-      return setData([])
-    }
-    setData(documents.message.documents)
+    const retrievedDocuments = (documents.message?.documents || [])
+    setData(retrievedDocuments)
   }
 
 

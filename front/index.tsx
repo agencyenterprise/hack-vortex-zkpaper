@@ -9,6 +9,7 @@ import initNoirC from '@noir-lang/noirc_abi';
 import initACVM from '@noir-lang/acvm_js';
 import "./styles/globals.css";
 import { NETWORK } from './utils/network'
+import SharedDocuments from './routes/SharedDocuments.jsx';
 import {
   ThirdwebProvider
 } from "@thirdweb-dev/react";
@@ -83,6 +84,10 @@ const router = createBrowserRouter([
         element: <Documents />,
       },
       {
+        path: "/shared/documents",
+        element: <SharedDocuments />,
+      },
+      {
         path: "/document/editing/:id",
         element: <NewDocument />,
       },
@@ -91,7 +96,7 @@ const router = createBrowserRouter([
         element: <NewDocument />,
       },
       {
-        path: "/document/:id",
+        path: "/document/:sharedDocumentId/:documentId",
         element: <ViewDocument />,
       },
     ],
