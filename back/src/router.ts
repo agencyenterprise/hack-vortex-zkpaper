@@ -7,7 +7,7 @@ import ABI from "./utils/DocumentNFT.json"
 const hasSubscription = async (publicKey: string) => {
     try {
         const client = new ThirdwebSDK(ScrollSepoliaTestnet, { secretKey: process.env.SECRET_KEY });
-        const contract = await client.getContractFromAbi("0x0E5438f1f3aa7454b7C3496E9E276f19Acfb3FCc", ABI.abi)
+        const contract = await client.getContractFromAbi(process.env.CONTRACT_ADDRESS!, ABI.abi)
         return await contract.call("hasSubscriptionOrDocumentsToMint", [publicKey])
     } catch (err) {
         return false

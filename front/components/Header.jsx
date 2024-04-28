@@ -14,12 +14,6 @@ const navigation = [
   { name: "Home", href: "/" },
   { name: "Documents", href: "/documents" },
 ];
-const client = createThirdwebClient({
-  clientId: "1eafd11d31d6d24dfceefb36c3de54d2",
-});
-const wallets = [
-  createWallet("io.metamask"),
-];
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
