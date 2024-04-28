@@ -178,26 +178,6 @@ const NewDocument = () => {
                 />
               </svg>
             </Button>
-            <Button
-              variant={"secondary"}
-              className="flex items-center gap-2"
-            >
-              Share{" "}
-              <svg
-                width="14"
-                height="16"
-                viewBox="0 0 14 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M4.72667 9.00671L9.28 11.66M9.27333 4.34004L4.72667 6.99337M13 3.33337C13 4.43794 12.1046 5.33337 11 5.33337C9.89543 5.33337 9 4.43794 9 3.33337C9 2.2288 9.89543 1.33337 11 1.33337C12.1046 1.33337 13 2.2288 13 3.33337ZM5 8.00004C5 9.10461 4.10457 10 3 10C1.89543 10 1 9.10461 1 8.00004C1 6.89547 1.89543 6.00004 3 6.00004C4.10457 6.00004 5 6.89547 5 8.00004ZM13 12.6667C13 13.7713 12.1046 14.6667 11 14.6667C9.89543 14.6667 9 13.7713 9 12.6667C9 11.5621 9.89543 10.6667 11 10.6667C12.1046 10.6667 13 11.5621 13 12.6667Z"
-                  stroke="#67E8F9"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </Button>
           </div>
         </div>
         <Editor documentName={documentName} id={id} setTitle={setDocumentName} />

@@ -157,7 +157,7 @@ const Documents = () => {
   return (
     <div className="max-w-7xl m-auto">
       <div className="flex items-center justify-between  px-8 mt-4 mb-8">
-        <h3 className="text-white">Documents</h3>
+        <h3 className="text-white text-3xl">Documents</h3>
       </div>
       <div className="text-white">
         <div className="w-full">

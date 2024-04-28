@@ -44,24 +44,16 @@ export const createDocument = async (receiverPublicKey: string, receiverSignatur
 export const appendDocument = async (receiverPublicKey: string, receiverSignature: string, receiverSignatureMessage: string, userEncryptionKey: string, externalId: string) => {
     try {
         await registeredUser(receiverPublicKey, receiverSignature, receiverSignatureMessage, userEncryptionKey)
-        console.log("Running addLocalDocument")
         const documentRecord = await getLocalDocument(externalId)
         const documentContent = documentRecord?.content
-        console.log("running proof of work")
         const proofOfWork = await runProof({ num_writes: +(documentRecord?.num_writes || 0) as number, num_pastes: 0 }, "work")
-        console.log("Running me")
         const user = await me(receiverPublicKey, receiverSignature, receiverSignatureMessage)
         if (!user) {
             throw new Error("User not found")
         }
         const secret = user.message.user.secretKey;
-        console.log(user)
-        console.log("decrypting...")
         const decryptedAesKey = await decryptWithWallet(secret, receiverPublicKey)
-        console.log(decryptedAesKey, 'decryptedAesKey')
-        console.log("encrypting...")
         const document = await aesEncryptMessage(documentContent!, decryptedAesKey)
-        console.log(document, 'encryptedDocument')
         const response = await client.post('/document/append', {
             document,
             documentId: externalId,

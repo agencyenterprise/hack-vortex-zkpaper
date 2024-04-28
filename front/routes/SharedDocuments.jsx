@@ -234,7 +234,7 @@ const SharedDocuments = () => {
     return <div className="flex justify-center">
       <div className="w-1/2">
         <div className="flex flex-col space-y-3">
-          <input type="text" className="p-3 w-[300px] border-white border" placeholder="Shared document id" value={sharedDocumentId} onChange={(e) => setSharedDocumentId(e.target.value)} />
+          <input type="text" className="p-3 w-[300px] border-white border" placeholder="Document id" value={sharedDocumentId} onChange={(e) => setSharedDocumentId(e.target.value)} />
           <input type="text" className="p-3 w-[300px] border-white border" placeholder="Sender's encryption key" value={senderEncryptionKey} onChange={e => setSenderEncryptionKey(e.target.value)} />
           <input type="text" className="p-3 w-[300px] border-white border" placeholder="Sender's public key" value={senderPublicKey} onChange={e => setSenderPublicKey(e.target.value)} />
           <div className="pt-1">
@@ -247,10 +247,10 @@ const SharedDocuments = () => {
   return (
     <div className="max-w-7xl m-auto">
       <div className="flex items-center justify-between  px-8 mt-4 mb-8">
-        <h3 className="text-white">Documents</h3>
-        <Button onClick={getEncryptionPublicKey} id="wallet-encryption-key">
+        <h3 className="text-white text-3xl">Documents</h3>
+        <button className="p-3 bg-slate-800 text-white w-[300px] hover:bg-slate-700" onClick={getEncryptionPublicKey} id="wallet-encryption-key">
           Get Wallet Encryption key
-        </Button>
+        </button >
 
       </div>
       <div className="flex justify-center py-7">
