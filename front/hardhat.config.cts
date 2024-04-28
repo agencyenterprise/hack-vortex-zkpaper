@@ -1,7 +1,6 @@
 import '@nomicfoundation/hardhat-toolbox-viem';
 import '@nomicfoundation/hardhat-viem';
 import '@nomicfoundation/hardhat-chai-matchers';
-
 import { HardhatUserConfig } from 'hardhat/config';
 
 import * as dotenv from 'dotenv';
@@ -9,6 +8,8 @@ import { subtask } from 'hardhat/config';
 import { TASK_COMPILE_SOLIDITY } from 'hardhat/builtin-tasks/task-names';
 import { join } from 'path';
 import { writeFile } from 'fs/promises';
+require("@nomiclabs/hardhat-waffle");
+require("hardhat-deploy");
 dotenv.config();
 
 subtask(TASK_COMPILE_SOLIDITY).setAction(async (_, { config }, runSuper) => {
@@ -25,20 +26,24 @@ subtask(TASK_COMPILE_SOLIDITY).setAction(async (_, { config }, runSuper) => {
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.8.18',
+    version: "0.8.9",
     settings: {
-      optimizer: { enabled: true, runs: 5000 },
-    },
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+      evmVersion: "london"
+    }
   },
   networks: {
     localhost: {
       url: 'http://127.0.0.1:8545',
     },
-    scrollSepolia: {
-      url: "https://sepolia-rpc.scroll.io/" || "",
+    scrollTestnet: {
+      url: "https://sepolia-rpc.scroll.io/",
       accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    }
+        [process.env.PRIVATE_KEY!],
+    },
   },
   paths: {
     sources: './circuits',

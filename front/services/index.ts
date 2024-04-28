@@ -19,14 +19,13 @@ export const me = async (userPublicKey: string, userSignature: string, userSigna
             userSignature,
             userSignatureMessage
         })
-        success("Retrieve user")
+
         return response.data
     } catch (err) {
-        error("Retrieve user")
         return null
     }
 }
-export const createDocument = async (receiverPublicKey: string, receiverSignature: string, receiverSignatureMessage: string, contentTitle: string = "Untitled") => {
+export const createDocument = async (receiverPublicKey: string, receiverSignature: string, receiverSignatureMessage: string, contentTitle: string = "Untitled",) => {
     try {
         const response = await client.post('/document/create', {
             contentTitle,

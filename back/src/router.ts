@@ -1,6 +1,18 @@
 import express from 'express';
 import { getDocumentById, createSharedDocument, appendDocument, uploadSharedDocument, getUserByPublicKey, getUserDocuments, retrieveSharedDocument, getSharedDocuments, createUser, createDocument } from './controller';
 import { verifySignature } from './utils/signatures';
+import { ThirdwebSDK } from "@thirdweb-dev/sdk";
+import { ScrollSepoliaTestnet } from "@thirdweb-dev/chains"
+import ABI from "./utils/DocumentNFT.json"
+const hasSubscription = async (publicKey: string) => {
+    try {
+        const client = new ThirdwebSDK(ScrollSepoliaTestnet, { secretKey: process.env.SECRET_KEY });
+        const contract = await client.getContractFromAbi(process.env.CONTRACT_ADDRESS!, ABI.abi)
+        return await contract.call("hasSubscriptionOrDocumentsToMint", [publicKey])
+    } catch (err) {
+        return false
+    }
+}
 const router = express.Router();
 
 router.get("/status", (req, res) => {
@@ -272,7 +284,10 @@ router.post("/document/create", async (req, res) => {
         if (!isValidSignature) {
             return res.status(400).json({ message: "Invalid signature" });
         }
-
+        const subscription = await hasSubscription(receiverPublicKey)
+        if (!subscription) {
+            return res.status(400).json({ message: "User does not have a subscription" });
+        }
         const documentRecord = await createDocument(receiverPublicKey, documentTitle)
         return res.json({ message: documentRecord });
     } catch (error: any) {
@@ -293,16 +308,13 @@ router.get("/document/:id", async (req, res) => {
         if (!document) {
             return res.status(404).json({ message: "Document not found" });
         }
-        console.log(document, 'document')
         const receiverPublicKey = document.receiverPublicKey;
         if (!receiverPublicKey) {
             return res.status(400).json({ message: "Document does not have a receiverPublicKey" });
         }
-        console.log(receiverPublicKey, 'receiverPublicKey')
         const user = await getUserByPublicKey(receiverPublicKey!);
-        console.log(user, 'user')
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.json({ document, receiverPublicKey, secretKey: null });
         }
         const secretKey = user.secretKey
         return res.json({ document, receiverPublicKey, secretKey });
