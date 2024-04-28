@@ -9,6 +9,7 @@ import { useNavigate } from "react-router";
 
 export default function Editor(props) {
   const { documentName, id, setTitle } = props;
+  const [loading, setLoading] = useState(true);
   const [value, setValue] = useState("");
   const [pubKey, setPubKey] = useState("");
   const sdk = useSDK();
@@ -24,36 +25,32 @@ export default function Editor(props) {
     hasDocument()
   }, [])
   const hasDocument = async () => {
-    const document = await getDocumentById(id)
-    if (!document) {
-      return navigate("/")
-    }
-    console.log(document)
-    const { receiverPublicKey, secretKey, document: retrievedDocument } = document
-    console.log(document)
-    const title = retrievedDocument.documentTitle
-    const plainSecret = await decryptWithWallet(secretKey, receiverPublicKey);
-    if (retrievedDocument.content) {
-      console.log(retrievedDocument.content)
-      const content = aesDecryptMessage(retrievedDocument.content, plainSecret)
-      console.log(content)
-      setValue(content)
-      setTitle(title)
+    try {
+      setLoading(true)
+      const document = await getDocumentById(id)
+      if (!document) {
+        return navigate("/")
+      }
+      console.log(document)
+      const { receiverPublicKey, secretKey, document: retrievedDocument } = document
+      console.log(document)
+      const title = retrievedDocument.documentTitle
+      const plainSecret = await decryptWithWallet(secretKey, receiverPublicKey);
+      if (retrievedDocument.content) {
+        console.log(retrievedDocument.content)
+        const content = aesDecryptMessage(retrievedDocument.content, plainSecret)
+        console.log(content)
+        setValue(content)
+        setTitle(title)
+      }
+      setLoading(false)
+    } catch (e) {
+      console.error(e);
+      setLoading(false);
     }
 
+
   }
-  useEffect(() => {
-    const getPubKey = async () => {
-      try {
-        const { publicKey } = await sdk.wallet.getPublicKey();
-        setPubKey(publicKey);
-        console.log(publicKey);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    getPubKey();
-  }, [])
 
   const [characters, setCharacters] = useState({
     typed: 0,
@@ -87,11 +84,11 @@ export default function Editor(props) {
 
   return (
     <div className="m-auto p-4  bg-secondary">
-      <ReactQuill
+      {!loading && <ReactQuill
         theme="snow"
         value={value}
         onChange={onChange}
-      />
+      />}
     </div>
   );
 }

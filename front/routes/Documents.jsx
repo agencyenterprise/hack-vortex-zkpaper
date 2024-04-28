@@ -117,6 +117,25 @@ const Documents = () => {
     const address = sdk.wallet.recoverAddress(message, signature)
     return { signature, address }
   }
+  async function retrieveEncryptionKey() {
+    const accounts = await window["ethereum"].request({ method: 'eth_requestAccounts' })
+    const encryptionKey = await window["ethereum"]
+      .request({
+        method: 'eth_getEncryptionPublicKey',
+        params: [accounts[0]], // you must have access to the specified account
+      })
+
+    return { key: Buffer.from(encryptionKey).toString(), account: accounts[0] }
+
+  }
+  async function retrieveKeyAndSign() {
+    const message = "text_random"
+    const { key: encryptionKey, account } = await retrieveEncryptionKey()
+    const signature = await signMessage(message)
+    console.log({ encryptionKey, signature, account })
+    return { encryptionKey, signature, account }
+
+  }
   const create = async () => {
     try {
       if (connectionStatus == "disconnected") {
@@ -124,8 +143,8 @@ const Documents = () => {
         return
       }
       const message = new Date().getTime().toString()
-      const { signature, address } = await signMessage(message)
-      const documentId = await createDocument(address, signature, message)
+      const { encryptionKey, signature, account } = await retrieveKeyAndSign()
+      const documentId = await createDocument(address, signature, message, encryptionKey)
       if (!documentId) {
         throw new Error("Failed to create document")
       }
@@ -141,29 +160,6 @@ const Documents = () => {
     <div className="max-w-7xl m-auto">
       <div className="flex items-center justify-between  px-8 mt-4 mb-8">
         <h3 className="text-white">Documents</h3>
-
-        <Button
-          variant="secondary"
-          className="flex items-center gap-2 w-fit"
-          onClick={create}
-        >
-          New{" "}
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M6 1.33337V10.6667M1.33333 6.00004H10.6667"
-              stroke="#67E8F9"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Button>
       </div>
       <div className="text-white">
         <div className="w-full">

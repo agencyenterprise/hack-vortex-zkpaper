@@ -51,10 +51,6 @@ const NewDocument = () => {
     return { key: Buffer.from(encryptionKey).toString(), account: accounts[0] }
 
   }
-
-
-
-
   async function retrieveKeyAndSign() {
     const message = "text_random"
     const { key: encryptionKey, account } = await retrieveEncryptionKey()

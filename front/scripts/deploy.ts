@@ -1,17 +1,17 @@
 import { writeFileSync } from 'fs';
-import pkg from 'hardhat';
+import pkg from "hardhat"
 const { ethers, viem } = pkg;
 
 async function main() {
   const publicClient = await viem.getPublicClient();
   const document = await (await ethers.getContractFactory("DocumentNFT")).deploy();
-  const change = await (await ethers.getContractFactory("ChangeUltraVerifier")).deploy();
-  const work = await (await ethers.getContractFactory("WorkUltraVerifier")).deploy();
+  //const change = await (await ethers.getContractFactory("ChangeUltraVerifier")).deploy();
+  //const work = await (await ethers.getContractFactory("WorkUltraVerifier")).deploy();
   // Create a config object
   const config = {
     chainId: publicClient.chain.id,
-    work: work.address,
-    change: change.address,
+    //work: work.address,
+    //change: change.address,
     document: document.address,
   };
 

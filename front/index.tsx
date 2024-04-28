@@ -8,7 +8,7 @@ import Component from './components/index';
 import initNoirC from '@noir-lang/noirc_abi';
 import initACVM from '@noir-lang/acvm_js';
 import "./styles/globals.css";
-import { ScrollSepoliaTestnet } from "@thirdweb-dev/chains"
+import { NETWORK } from './utils/network'
 import {
   ThirdwebProvider
 } from "@thirdweb-dev/react";
@@ -34,9 +34,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Home from "./routes/Home.jsx";
 import ViewDocument from "./routes/ViewDocument.jsx";
 
-const client = createThirdwebClient({
-  clientId: "1eafd11d31d6d24dfceefb36c3de54d2",
-});
+
 const wallets = [
   createWallet("io.metamask"),
 ];
@@ -104,7 +102,7 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')!).render(
 
   <ThirdwebProvider
-    activeChain={ScrollSepoliaTestnet}
+    activeChain={NETWORK}
   >
     <ThirdwebProviderV5>
       <QueryClientProvider client={queryClient}>

@@ -16,10 +16,10 @@ contract DocumentNFT is ERC721Enumerable, ReentrancyGuard {
     mapping(address => uint256) private _subscriptions;
     uint256 private _itemsPerSubscription;
 
-    constructor() ERC721("ArticleNFT", "ANFT") {
+    constructor() ERC721("DocumentNFT", "DNFT") {
         owner = msg.sender;
-        PRICE = 0.001 ether;
-        _itemsPerSubscription = 10;
+        PRICE = 0.00001 ether;
+        _itemsPerSubscription = 100;
     }
 
     modifier onlyOwner() {

@@ -4,15 +4,11 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom"; // Changed from 'Link' to 'NavLink'
 import { Button } from "../components/ui/button";
 import { createThirdwebClient } from "thirdweb";
-import { ConnectButton } from "thirdweb/react"
 import { defineChain } from "thirdweb/chains";
 import {
   createWallet,
 } from "thirdweb/wallets";
-import {
-  ThirdwebProvider,
-  ConnectWallet
-} from "@thirdweb-dev/react";
+import { ConnectWallet } from "@thirdweb-dev/react";
 
 const navigation = [
   { name: "Home", href: "/" },

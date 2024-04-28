@@ -24,9 +24,12 @@ describe('It compiles noir program code, receiving circuit bytes and abi object.
 
   before(async () => {
     const compiled = await getCircuit();
-    const verifierContract = await ethers.deployContract('WorkUltraVerifier');
+    const verifierContract = await ethers.getContractFactory("WorkUltraVerifier");
 
-    const verifierAddr = verifierContract.address;
+    // Deploy the contract
+    const contract = await verifierContract.deploy();
+    const verifierAddr = contract.address;
+    //const verifierAddr = verifierContract.address;
     console.log(`Verifier deployed to ${verifierAddr}`);
 
     // @ts-ignore

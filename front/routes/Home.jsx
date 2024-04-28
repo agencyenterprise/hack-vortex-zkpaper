@@ -5,15 +5,64 @@ import { useNavigate } from 'react-router-dom';
 import { createDocument } from "../services";
 import { toast } from 'react-toastify'
 import { useConnectionStatus, useSDK } from "@thirdweb-dev/react";
-
-
+import ABI from "../utils/DocumentNFT.json";
+import { CONTRACT_ADDRESS } from "../utils/network";
 const Home = () => {
   const navigate = useNavigate();
   const error = (msg) => toast(msg, { type: "error" });
+  const info = (msg) => toast(msg, { type: "info" });
   const success = (msg) => toast(msg, { type: "success" });
   const sdk = useSDK()
   const connectionStatus = useConnectionStatus();
+  const hasSubscription = async () => {
+    try {
+      const contract = await sdk.getContractFromAbi(CONTRACT_ADDRESS, ABI.abi)
+      const result = !!(await contract.call("hasSubscriptionOrDocumentsToMint", [sdk.getSigner()._address]))
+      return result
+    } catch (err) {
+      return false
+    }
+  }
+  const buySubscription = async () => {
+    try {
+      info("Buy a subscription to start creating documents!")
+      const price = 0.001 * 10 ** 18
+      const contract = await sdk.getContractFromAbi(CONTRACT_ADDRESS, ABI.abi)
+      await contract.call("paySubscription", [], { value: price })
+      success("Subscription bought successfully!")
+      return true
+    }
+    catch (err) {
+      console.log(err)
+      error("Failed to buy subscription! Try again later.")
+      return false
+    }
+  }
+  // async function retrieveEncryptionKey() {
+  //   const accounts = await window["ethereum"].request({ method: 'eth_requestAccounts' })
+  //   const encryptionKey = await window["ethereum"]
+  //     .request({
+  //       method: 'eth_getEncryptionPublicKey',
+  //       params: [accounts[0]], // you must have access to the specified account
+  //     })
 
+  //   return { key: Buffer.from(encryptionKey).toString(), account: accounts[0] }
+
+  // }
+  // async function retrieveKeyAndSign() {
+  //   const message = "text_random"
+  //   const { key: encryptionKey, account } = await retrieveEncryptionKey()
+  //   const signature = await signMessage(message)
+  //   console.log({ encryptionKey, signature, account })
+  //   return { encryptionKey, signature, account }
+
+  // }
+  // async function signMessage(message) {
+  //   const signature = await sdk.wallet.sign(message)
+  //   console.log(sdk.wallet.recoverAddress(message, signature))
+  //   console.log(signature, 'signature')
+  //   return signature
+  // }
   async function signMessage(message) {
     if (connectionStatus !== "connected") {
       error("Please connect your wallet")
@@ -28,6 +77,13 @@ const Home = () => {
       if (connectionStatus !== "connected") {
         error("Please connect your wallet")
         return
+      }
+      const subscription = await hasSubscription()
+      if (!subscription) {
+        const newSubscription = await buySubscription()
+        if (!newSubscription) {
+          return
+        }
       }
       const message = new Date().getTime().toString()
       const { signature, address } = await signMessage(message)
@@ -70,8 +126,8 @@ const Home = () => {
               fill="none"
             >
               <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
+                fillRule="evenodd"
+                clipRule="evenodd"
                 d="M8.73429 3.13434C9.04671 2.82192 9.55324 2.82192 9.86566 3.13434L14.6657 7.93434C14.9781 8.24676 14.9781 8.75329 14.6657 9.06571L9.86566 13.8657C9.55324 14.1781 9.04671 14.1781 8.73429 13.8657C8.42187 13.5533 8.42187 13.0468 8.73429 12.7343L12.1686 9.30002L2.89998 9.30003C2.45815 9.30002 2.09998 8.94185 2.09998 8.50002C2.09998 8.0582 2.45815 7.70002 2.89998 7.70002H12.1686L8.73429 4.26571C8.42187 3.95329 8.42187 3.44676 8.73429 3.13434Z"
                 fill="#0F172A"
               />
@@ -80,9 +136,9 @@ const Home = () => {
           {/* </Link> */}
         </div>
         <div className="flex flex-wrap items-center justify-center gap-4">
-          {features.map((feature) => {
+          {features.map((feature, i) => {
             return (
-              <div className="text-white flex items-center gap-2">
+              <div className="text-white flex items-center gap-2" key={i}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="25"
@@ -93,9 +149,9 @@ const Home = () => {
                   <path
                     d="M9.5 12L11.5 14L15.5 10M21.5 12C21.5 16.9706 17.4706 21 12.5 21C7.52944 21 3.5 16.9706 3.5 12C3.5 7.02944 7.52944 3 12.5 3C17.4706 3 21.5 7.02944 21.5 12Z"
                     stroke="#67E8F9"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
                 {feature}
@@ -116,15 +172,7 @@ const Home = () => {
               Peace of mind knowing that no one will ever able to read your
               documents
             </div>
-            {/* <Link to="/document/editing"> */}
-            <Button
-              variant={"primary"}
-              className="w-fit"
-              onClick={create}
-            >
-              Create Document
-            </Button>
-            {/* </Link> */}
+
           </div>
           <div className="flex-1">
             <img src="/features.png" />

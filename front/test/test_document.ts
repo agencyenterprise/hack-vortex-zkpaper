@@ -23,7 +23,7 @@ describe("DocumentNFT", function () {
 
     describe("Transactions", function () {
         it("Should mint one NFT to addr1", async function () {
-            const price = { value: ethers.parseEther("0.01") };
+            const price = { value: ethers.utils.parseEther("0.01") };
             await nft.connect(addr1).paySubscription(price);
             await nft.connect(addr1).mintArticle("Article 1");
             expect(await nft.balanceOf(addr1.address)).to.equal(1);
@@ -33,7 +33,7 @@ describe("DocumentNFT", function () {
 
         });
         it("Should not mint because user does not have more credits", async function () {
-            const price = { value: ethers.parseEther("0.01") };
+            const price = { value: ethers.utils.parseEther("0.01") };
             await nft.connect(addr1).paySubscription(price);
             for await (const i of Array(10).keys()) {
                 await nft.connect(addr1).mintArticle(`Article ${i}`);
@@ -46,7 +46,7 @@ describe("DocumentNFT", function () {
                 .to.be.revertedWith("You need to purchase a subscription to mint a document");
         });
         it("Should mint after user replenished credits", async function () {
-            const price = { value: ethers.parseEther("0.01") };
+            const price = { value: ethers.utils.parseEther("0.01") };
             await nft.connect(addr1).paySubscription(price);
             for await (const i of Array(10).keys()) {
                 await nft.connect(addr1).mintArticle(`Article ${i}`);
@@ -67,7 +67,7 @@ describe("DocumentNFT", function () {
                 .to.be.revertedWith("You need to purchase a subscription to mint a document");
         });
         it("Should mint one NFT to addr1 and reduce the article's name size", async function () {
-            const price = { value: ethers.parseEther("0.01") };
+            const price = { value: ethers.utils.parseEther("0.01") };
             await nft.connect(addr1).paySubscription(price);
             const articleName = Array(100).fill("a").join("");
             await nft.connect(addr1).mintArticle(articleName);
@@ -79,7 +79,7 @@ describe("DocumentNFT", function () {
 
         });
         it("Should mint, approve, and transfer an NFT", async function () {
-            const price = { value: ethers.parseEther("0.01") };
+            const price = { value: ethers.utils.parseEther("0.01") };
             const articleName = "Example Article Name";
             await nft.connect(addr1).paySubscription(price);
             // Minting the NFT to addr1
@@ -103,7 +103,7 @@ describe("DocumentNFT", function () {
             expect(await nft.ownerOf(tokenId)).to.equal(addr2.address);
         });
         it("Should mint, and should not transfer an NFT", async function () {
-            const price = { value: ethers.parseEther("0.01") };
+            const price = { value: ethers.utils.parseEther("0.01") };
             const articleName = "Example Article Name";
             await nft.connect(addr1).paySubscription(price);
             // Minting the NFT to addr1
@@ -120,7 +120,7 @@ describe("DocumentNFT", function () {
         });
 
         it("Should fail if ether sent is incorrect", async function () {
-            const lowPrice = { value: ethers.parseEther("0.005") };
+            const lowPrice = { value: ethers.utils.parseEther("0.005") };
             await expect(nft.connect(addr1).paySubscription(lowPrice))
                 .to.be.revertedWith("Please submit the correct amount of ETH to purchase the NFT.");
         });
