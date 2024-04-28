@@ -34,35 +34,10 @@ const Home = () => {
     }
     catch (err) {
       console.log(err)
-      error("Failed to buy subscription! Try again later.")
+      error("Failed to buy subscription! You must have at least 0.001 ether on your account")
       return false
     }
   }
-  // async function retrieveEncryptionKey() {
-  //   const accounts = await window["ethereum"].request({ method: 'eth_requestAccounts' })
-  //   const encryptionKey = await window["ethereum"]
-  //     .request({
-  //       method: 'eth_getEncryptionPublicKey',
-  //       params: [accounts[0]], // you must have access to the specified account
-  //     })
-
-  //   return { key: Buffer.from(encryptionKey).toString(), account: accounts[0] }
-
-  // }
-  // async function retrieveKeyAndSign() {
-  //   const message = "text_random"
-  //   const { key: encryptionKey, account } = await retrieveEncryptionKey()
-  //   const signature = await signMessage(message)
-  //   console.log({ encryptionKey, signature, account })
-  //   return { encryptionKey, signature, account }
-
-  // }
-  // async function signMessage(message) {
-  //   const signature = await sdk.wallet.sign(message)
-  //   console.log(sdk.wallet.recoverAddress(message, signature))
-  //   console.log(signature, 'signature')
-  //   return signature
-  // }
   async function signMessage(message) {
     if (connectionStatus !== "connected") {
       error("Please connect your wallet")
