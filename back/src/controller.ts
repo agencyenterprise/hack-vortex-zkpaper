@@ -45,6 +45,7 @@ interface SharedDocumentModel {
     receiverSecretKey: string;
     receiverPublicKey: string;
     senderPublicKey: string;
+    senderEncryptionKey: string;
     title?: string;
     content?: string;
     createdAt: Date;
@@ -63,7 +64,7 @@ interface UploadSharedDocumentModel {
     createdAt?: Date;
 }
 
-export const createSharedDocument = async (documentId: string, receiverPublicKey: string, senderPublicKey: string, senderAesKey: string, receiverAesKey: string) => {
+export const createSharedDocument = async (documentId: string, receiverPublicKey: string, senderPublicKey: string, senderAesKey: string, receiverAesKey: string, senderEncryptionKey: string) => {
 
     const { db } = await connectToDatabase();
 
@@ -96,53 +97,61 @@ export const createSharedDocument = async (documentId: string, receiverPublicKey
         senderSecretKey: senderAesKey,
         receiverSecretKey: receiverAesKey,
         senderPublicKey,
+        senderEncryptionKey,
         receiverPublicKey,
         createdAt: new Date()
     });
 
 }
 
-export const retrieveSharedDocument = async (sharedDocumentId: string, receiverPublicKey: string, senderPublicKey: string) => {
+export const retrieveSharedDocument = async (sharedDocumentId: string) => {
     const { db } = await connectToDatabase();
 
     const collection = db.collection<SharedDocumentModel>("sharedDocuments");
-    receiverPublicKey = receiverPublicKey.toLowerCase()
-    senderPublicKey = senderPublicKey.toLowerCase()
     const sharedDocument = await collection.findOne({ _id: new ObjectId(sharedDocumentId) });
 
     if (!sharedDocument) {
         throw new Error("Shared Document not found");
     }
-    const hasReceiverPublicKey = sharedDocument.receiverPublicKey !== receiverPublicKey
-    const hasSenderPublicKey = sharedDocument.senderPublicKey !== senderPublicKey
-    if (!hasReceiverPublicKey && !hasSenderPublicKey) {
-        throw new Error("User not authorized to view this document");
-    }
-
     return sharedDocument;
 }
 
 
-export const getSharedDocuments = async (receiverPublicKey: string, senderPublicKey: string) => {
+export const getSharedDocuments = async (receiverPublicKey: string) => {
     const { db } = await connectToDatabase();
     receiverPublicKey = receiverPublicKey.toLowerCase()
-    senderPublicKey = senderPublicKey.toLowerCase()
     const collection = db.collection<SharedDocumentModel>("sharedDocuments");
-
-    const sharedDocuments = await collection.find({ receiverPublicKey, senderPublicKey });
-    const documents = await sharedDocuments.toArray();
-    if (!documents.length) {
-        throw new Error("Shared s not found");
-    }
-    return sharedDocuments;
+    console.log(JSON.stringify([
+        {
+            $lookup: {
+                from: "sharedDocuments",       // collection to join
+                localField: "_id",             // field from the input documents
+                foreignField: "documentId",    // field from the documents of the "from" collection
+                as: "documentsDetails",
+                pipeline: [
+                    {
+                        $match: {
+                            receiverPublicKey
+                        }
+                    }
+                ],   // output array field with the joined documents
+            }
+        }, {
+            $match: {
+                "sharedDocumentDetails": { $ne: [] }  // Filters out documents without any matching sharedDocuments
+            }
+        }
+    ]))
+    const documents = await collection.find({ $or: [{ receiverPublicKey }, { senderPublicKey: receiverPublicKey }] }).toArray();
+    return documents;
 }
 
-export const uploadSharedDocument = async (sharedDocumentId: string, content: string) => {
+export const uploadSharedDocument = async (sharedDocumentId: string, documentId: string, content: string) => {
     const { db } = await connectToDatabase();
 
     const collection = db.collection<UploadSharedDocumentModel>("sharedDocuments");
 
-    return collection.updateOne({ _id: new ObjectId(sharedDocumentId) }, { $set: { content } });
+    return collection.updateOne({ _id: new ObjectId(sharedDocumentId), documentId: new ObjectId(documentId) }, { $set: { content } });
 }
 
 export const appendDocument = async (documentId: string, documentContent: string, proofOfWork: string, documentTitle: string) => {

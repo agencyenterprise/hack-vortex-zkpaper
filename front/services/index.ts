@@ -80,10 +80,11 @@ export const appendDocument = async (receiverPublicKey: string, receiverSignatur
     }
 }
 
-export const uploadSharedDocument = async (content: string, documentId: string, receiverPublicKey: string, receiverSignature: string, receiverSignatureMessage: string) => {
+export const uploadSharedDocument = async (content: string, sharedDocumentId: string, documentId: string, receiverPublicKey: string, receiverSignature: string, receiverSignatureMessage: string) => {
     try {
         const response = await client.post('/document/share/upload', {
             content,
+            sharedDocumentId,
             documentId,
             receiverPublicKey,
             receiverSignature,
@@ -97,13 +98,17 @@ export const uploadSharedDocument = async (content: string, documentId: string, 
     }
 }
 
-export const createSharedDocument = async (documentId: string, receiverPublicKey: string, receiverSignature: string, receiverSignatureMessage: string) => {
+export const createSharedDocument = async (documentId: string, receiverPublicKey: string, receiverSignature: string, receiverSignatureMessage: string, senderAesKey: string, receiverAesKey: string, senderPublicKey: string, senderEncryptionKey: string) => {
     try {
+        //senderAesKey, receiverAesKey, documentId, senderPublicKey, receiverPublicKey, receiverSignature, receiverSignatureMessage
         const response = await client.post('/document/share/keys/create', {
             documentId,
             receiverPublicKey,
             receiverSignature,
-            receiverSignatureMessage
+            receiverSignatureMessage,
+            senderPublicKey,
+            senderEncryptionKey,
+            senderAesKey, receiverAesKey,
         })
         success("Create shared document")
         return response.data
@@ -134,9 +139,24 @@ export const getUserDocuments = async (address: string, signature: string, messa
     }
 }
 
-export const retrieveSharedDocumentById = async (sharedDocumentId: string) => {
+export const retrieveSharedDocumentById = async (sharedDocumentId: string, documentId: string, receiverPublicKey: string, receiverSignature: string, receiverSignatureMessage: string, senderPublicKey: string) => {
     try {
-        const response = await client.get(`/document/share/${sharedDocumentId}`)
+        const response = await client.post(`/document/share/${sharedDocumentId}`, {
+            documentId, receiverPublicKey, receiverSignature, receiverSignatureMessage, senderPublicKey
+        })
+        success("Retrieve shared document")
+        return response.data
+    } catch (err) {
+        error("Retrieve shared document")
+        return null
+    }
+}
+
+export const getSharedDocuments = async (receiverPublicKey: string, receiverSignature: string, receiverSignatureMessage: string, senderPublicKey: string) => {
+    try {
+        const response = await client.post(`/document/shares`, {
+            receiverPublicKey, receiverSignature, receiverSignatureMessage
+        })
         success("Retrieve shared document")
         return response.data
     } catch (err) {

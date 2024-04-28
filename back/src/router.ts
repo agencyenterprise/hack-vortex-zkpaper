@@ -21,9 +21,12 @@ router.get("/status", (req, res) => {
 
 router.post("/document/share/keys/create", async (req, res) => {
     try {
-        const { senderAesKey, receiverAesKey, documentId, senderPublicKey, receiverPublicKey, receiverSignature, receiverSignatureMessage } = req.body;
+        const { senderEncryptionKey, senderAesKey, receiverAesKey, documentId, senderPublicKey, receiverPublicKey, receiverSignature, receiverSignatureMessage } = req.body;
         if (!senderAesKey) {
             return res.status(400).json({ message: "Missing senderAesKey" });
+        }
+        if (!senderEncryptionKey) {
+            return res.status(400).json({ message: "Missing senderEncryptionKey" });
         }
         if (!receiverAesKey) {
             return res.status(400).json({ message: "Missing receiverAesKey" });
@@ -53,7 +56,7 @@ router.post("/document/share/keys/create", async (req, res) => {
         if (!document) {
             return res.status(404).json({ message: "Document not found" });
         }
-        const sharedDocument = await createSharedDocument(documentId, receiverPublicKey, senderPublicKey, senderAesKey, receiverAesKey)
+        const sharedDocument = await createSharedDocument(documentId, receiverPublicKey, senderPublicKey, senderAesKey, receiverAesKey, senderEncryptionKey)
         return res.json({ message: sharedDocument });
     } catch (error: any) {
         return res.status(400).json({ message: error.message });
@@ -120,14 +123,16 @@ router.post("/me/:id", async (req, res) => {
 
 router.post("/document/share/upload", async (req, res) => {
     try {
-        const { content, documentId, receiverPublicKey, receiverSignature, receiverSignatureMessage } = req.body;
-        const isValidSignature = await verifySignature(receiverPublicKey, receiverSignatureMessage, receiverSignature)
+        const { content, documentId, sharedDocumentId, receiverPublicKey, receiverSignature, receiverSignatureMessage } = req.body;
         if (!content) {
             return res.status(400).json({ message: "Missing content" });
         }
         if (!documentId) {
             return res.status(400).json({ message: "Missing documentId" });
         }
+        if (!sharedDocumentId) {
+            return res.status(400).json({ message: "Missing sharedDocumentId" });
+        }
         if (!receiverPublicKey) {
             return res.status(400).json({ message: "Missing receiverPublicKey" });
         }
@@ -137,45 +142,8 @@ router.post("/document/share/upload", async (req, res) => {
         if (!receiverSignatureMessage) {
             return res.status(400).json({ message: "Missing receiverSignatureMessage" });
         }
-
-        if (!isValidSignature) {
-            return res.status(400).json({ message: "Invalid signature" });
-        }
-        const document = await getDocumentById(documentId);
-
-        if (!document) {
-            return res.status(404).json({ message: "Document not found" });
-        }
-        const sharedDocument = await uploadSharedDocument(documentId, content)
-        return res.json({ message: sharedDocument });
-    } catch (error: any) {
-        return res.status(400).json({ message: error.message });
-    }
-})
-
-router.post("/document/share/:id", async (req, res) => {
-    try {
-        const { documentId, receiverPublicKey, receiverSignature, receiverSignatureMessage, senderPublicKey } = req.body;
         const isValidSignature = await verifySignature(receiverPublicKey, receiverSignatureMessage, receiverSignature)
-        const { id } = req.params;
-        if (!id) {
-            return res.status(400).json({ message: "Missing id" });
-        }
-        if (!documentId) {
-            return res.status(400).json({ message: "Missing documentId" });
-        }
-        if (!receiverPublicKey) {
-            return res.status(400).json({ message: "Missing receiverPublicKey" });
-        }
-        if (!receiverSignature) {
-            return res.status(400).json({ message: "Missing receiverSignature" });
-        }
-        if (!receiverSignatureMessage) {
-            return res.status(400).json({ message: "Missing receiverSignatureMessage" });
-        }
-        if (!senderPublicKey) {
-            return res.status(400).json({ message: "Missing senderPublicKey" });
-        }
+
         if (!isValidSignature) {
             return res.status(400).json({ message: "Invalid signature" });
         }
@@ -184,20 +152,70 @@ router.post("/document/share/:id", async (req, res) => {
         if (!document) {
             return res.status(404).json({ message: "Document not found" });
         }
-        const sharedDocument = retrieveSharedDocument(id, receiverPublicKey, senderPublicKey)
+        const sharedDocument = await retrieveSharedDocument(sharedDocumentId)
         if (!sharedDocument) {
             return res.status(404).json({ message: "Shared Document not found" });
         }
-
+        await uploadSharedDocument(sharedDocumentId, documentId, content)
         return res.json({ message: sharedDocument });
-    } catch (error: any) {
-        return res.status(400).json({ message: error.message });
     }
+    catch (e: any) {
+        return res.status(400).json({ message: e.message });
+    }
+
+})
+
+router.post("/document/share/:id", async (req, res) => {
+    //try {
+    const { documentId, receiverPublicKey, receiverSignature, receiverSignatureMessage, senderPublicKey } = req.body;
+    const { id } = req.params;
+    if (!id) {
+        return res.status(400).json({ message: "Missing id" });
+    }
+    if (!documentId) {
+        return res.status(400).json({ message: "Missing documentId" });
+    }
+    if (!receiverPublicKey) {
+        return res.status(400).json({ message: "Missing receiverPublicKey" });
+    }
+    // if (!receiverSignature) {
+    //     return res.status(400).json({ message: "Missing receiverSignature" });
+    // }
+    // if (!receiverSignatureMessage) {
+    //     return res.status(400).json({ message: "Missing receiverSignatureMessage" });
+    // }
+    // if (!senderPublicKey) {
+    //     return res.status(400).json({ message: "Missing senderPublicKey" });
+    // }
+    // const isValidSignature = await verifySignature(receiverPublicKey, receiverSignatureMessage, receiverSignature)
+
+    // if (!isValidSignature) {
+    //     return res.status(400).json({ message: "Invalid signature" });
+    // }
+    const user = await getUserByPublicKey(receiverPublicKey);
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+    const baseSecretKey = user.secretKey;
+    const document = await getDocumentById(documentId);
+
+    if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+    }
+    const sharedDocument = await retrieveSharedDocument(id)
+    if (!sharedDocument) {
+        return res.status(404).json({ message: "Shared Document not found" });
+    }
+
+    return res.json({ message: { sharedDocument, document, baseSecretKey } });
+    // } catch (error: any) {
+    //     return res.status(400).json({ message: error.message });
+    // }
 })
 
 router.post("/document/shares", async (req, res) => {
     try {
-        const { receiverPublicKey, receiverSignature, receiverSignatureMessage, senderPublicKey } = req.body;
+        const { receiverPublicKey, receiverSignature, receiverSignatureMessage } = req.body;
         const isValidSignature = await verifySignature(receiverPublicKey, receiverSignatureMessage, receiverSignature)
         if (!receiverPublicKey) {
             return res.status(400).json({ message: "Missing receiverPublicKey" });
@@ -208,19 +226,12 @@ router.post("/document/shares", async (req, res) => {
         if (!receiverSignatureMessage) {
             return res.status(400).json({ message: "Missing receiverSignatureMessage" });
         }
-        if (!senderPublicKey) {
-            return res.status(400).json({ message: "Missing senderPublicKey" });
-        }
         if (!isValidSignature) {
             return res.status(400).json({ message: "Invalid signature" });
         }
 
-        const sharedDocument = getSharedDocuments(receiverPublicKey, senderPublicKey)
-        if (!sharedDocument) {
-            return res.status(404).json({ message: "Shared Document not found" });
-        }
-
-        return res.json({ message: sharedDocument });
+        const sharedDocuments = await getSharedDocuments(receiverPublicKey)
+        return res.json({ message: { sharedDocuments } });
     } catch (error: any) {
         return res.status(400).json({ message: error.message });
     }

@@ -13,6 +13,7 @@ import { ConnectWallet } from "@thirdweb-dev/react";
 const navigation = [
   { name: "Home", href: "/" },
   { name: "Documents", href: "/documents" },
+  { name: "Shared Documents", href: "/shared/documents" },
 ];
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
