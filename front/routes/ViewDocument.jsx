@@ -26,7 +26,7 @@ const ViewDocumentPage = () => {
   }, [])
   useEffect(() => {
 
-    if ((window["ethereum"].providers || []).length > 1) {
+    if ((window["ethereum"]?.providers || []).length > 1) {
       const metamaskProvider = window["ethereum"].providers.find((provider) => provider.isMetaMask);
       if (metamaskProvider) {
         error("This application only works with Metamask wallets!")
