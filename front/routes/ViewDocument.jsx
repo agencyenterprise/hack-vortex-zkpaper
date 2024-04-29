@@ -4,6 +4,7 @@ import { getDocumentById, retrieveSharedDocumentById } from "../services";
 import { useNavigate, useParams } from "react-router";
 import { useConnectionStatus, useSDK } from "@thirdweb-dev/react";
 import { aesDecryptMessage, decryptWithWallet } from "../utils/encryption";
+import { toast } from "react-toastify";
 const exampleDoc = {
   name: "Untitled Document (Decrypt to continue)",
   content: "<p>test <i>italic</i> <b>bold</b></p>",

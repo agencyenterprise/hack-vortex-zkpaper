@@ -4,7 +4,7 @@ const features = ["Pay with crypto", "No characters limit", "Untraceable"];
 import { useNavigate } from 'react-router-dom';
 import { createDocument } from "../services";
 import { toast } from 'react-toastify'
-import { useConnectionStatus, useSDK } from "@thirdweb-dev/react";
+import { useConnectionStatus, useSDK, useWallet } from "@thirdweb-dev/react";
 import ABI from "../utils/DocumentNFT.json";
 import { CONTRACT_ADDRESS } from "../utils/network";
 import { MutatingDots } from 'react-loader-spinner'
@@ -15,6 +15,7 @@ const Home = () => {
   const success = (msg) => toast(msg, { type: "success" });
   const [loading, setLoading] = React.useState(false)
   const sdk = useSDK()
+  const wallet = useWallet()
   const connectionStatus = useConnectionStatus();
   const hasSubscription = async () => {
     try {
@@ -55,6 +56,10 @@ const Home = () => {
     try {
       if (connectionStatus !== "connected") {
         error("Please connect your wallet")
+        return
+      }
+      if (wallet?.walletId !== "metamask") {
+        error("This application only works with Metamask wallets!")
         return
       }
       const subscription = await hasSubscription()
