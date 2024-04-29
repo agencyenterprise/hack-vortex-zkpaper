@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Editor from "../components/Editor";
 import { Button } from "../components/ui/button";
-import { useSDK, useConnectionStatus } from "@thirdweb-dev/react";
+import { useSDK, useConnectionStatus, useWallet } from "@thirdweb-dev/react";
 import { appendDocument, createDocument, getDocumentById } from "../services";
 import { toast } from 'react-toastify';
 import { useNavigate, useParams } from "react-router-dom";
@@ -9,6 +9,7 @@ const NewDocument = () => {
   const [documentName, setDocumentName] = useState("Untitled Document");
   const [document, setEditing] = useState(false);
   const sdk = useSDK()
+  const wallet = useWallet()
   const info = (msg: string) => toast(msg, { type: "info" });
   const { id } = useParams();
   const navigate = useNavigate();
@@ -37,10 +38,6 @@ const NewDocument = () => {
 
     if ((window["ethereum"]?.providers || []).length > 1) {
       const metamaskProvider = window["ethereum"].providers.find((provider) => provider.isMetaMask);
-      // if (metamaskProvider) {
-      //   error("This application only works with Metamask wallets!")
-      //   navigate("/")
-      // }
       window["ethereum"] = metamaskProvider;
     }
 
@@ -64,7 +61,7 @@ const NewDocument = () => {
     return { encryptionKey, signature, account }
 
   }
-  async function signMessage(message) {
+  async function signMessage(message: string) {
     const signature = await sdk!.wallet.sign(message)
     console.log(sdk!.wallet.recoverAddress(message, signature))
     console.log(signature, 'signature')
@@ -84,6 +81,11 @@ const NewDocument = () => {
     }
   };
   const saveDocument = async () => {
+    if (wallet?.walletId !== "metamask") {
+      error("This application only works with Metamask wallets!")
+      navigate("/")
+      return
+    }
     const message = "text_random"
     const { encryptionKey, signature, account: userAccount } = await retrieveKeyAndSign()
     await appendDocument(userAccount, signature, message, encryptionKey, id!)

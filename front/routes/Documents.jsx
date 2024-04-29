@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { createDocument, getUserDocuments } from "../services";
-import { useConnectionStatus, useSDK } from "@thirdweb-dev/react";
+import { useConnectionStatus, useSDK, useWallet } from "@thirdweb-dev/react";
 
 const base = [
   {
@@ -88,8 +88,13 @@ const Documents = () => {
   const success = (msg) => toast(msg, { type: "success" });
   const info = (msg) => toast(msg, { type: "info" });
   const sdk = useSDK()
-
+  const wallet = useWallet()
   const retrieveDocuments = async () => {
+    if (wallet?.walletId !== "metamask") {
+      error("This application only works with Metamask wallets!")
+      navigate("/")
+      return
+    }
     const plainMessage = new Date().getTime().toString()
     const { signature, address } = await signMessage(plainMessage)
     const documents = await getUserDocuments(address, signature, plainMessage)
@@ -108,7 +113,6 @@ const Documents = () => {
       }
       window["ethereum"] = metamaskProvider;
     }
-
   }, []);
   async function signMessage(message) {
     if (connectionStatus !== "connected") {
@@ -136,26 +140,6 @@ const Documents = () => {
     const signature = await signMessage(message)
     console.log({ encryptionKey, signature, account })
     return { encryptionKey, signature, account }
-
-  }
-  const create = async () => {
-    try {
-      if (connectionStatus == "disconnected") {
-        error("Please connect your wallet")
-        return
-      }
-      const message = new Date().getTime().toString()
-      const { encryptionKey, signature, account } = await retrieveKeyAndSign()
-      const documentId = await createDocument(address, signature, message, encryptionKey)
-      if (!documentId) {
-        throw new Error("Failed to create document")
-      }
-      success("Document created successfully!")
-      navigate(`/document/editing/${documentId}`, { replace: true });
-    } catch (e) {
-      console.log(e)
-      error("Failed to create document! Try again later.")
-    }
 
   }
   return (

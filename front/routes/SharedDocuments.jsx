@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { createDocument, createSharedDocument, getDocumentById, getSharedDocuments, getUserDocuments, retrieveSharedDocumentById, uploadSharedDocument } from "../services";
-import { useConnectionStatus, useSDK } from "@thirdweb-dev/react";
+import { useConnectionStatus, useSDK, useWallet } from "@thirdweb-dev/react";
 import { aesDecryptMessage, aesEncryptMessage, decryptWithWallet, encryptWithWallet, generateSecret } from "../utils/encryption";
 
 const base = [
@@ -128,8 +128,13 @@ const SharedDocuments = () => {
   const error = (msg) => toast(msg, { type: "error" });
   const success = (msg) => toast(msg, { type: "success" });
   const info = (msg) => toast(msg, { type: "info" });
-
+  const wallet = useWallet()
   const retrieveDocuments = async () => {
+    if (wallet?.walletId !== "metamask") {
+      error("This application only works with Metamask wallets!")
+      navigate("/")
+      return
+    }
     const plainMessage = new Date().getTime().toString()
     const { signature, address } = await signMessage(plainMessage)
     const documents = await getSharedDocuments(address, signature, plainMessage)
@@ -210,6 +215,11 @@ const SharedDocuments = () => {
   }
   const importSharedDocument = async () => {
     try {
+      if (wallet?.walletId !== "metamask") {
+        error("This application only works with Metamask wallets!")
+        navigate("/")
+        return
+      }
       const { encryptionKey: receiverEncryptionKey, signature, account } = await retrieveKeyAndSign()
       const message = "text_random"
       const { secret } = generateSecret()
