@@ -54,15 +54,14 @@ const SharedDocuments = () => {
   const [senderEncryptionKey, setSenderEncryptionKey] = React.useState("");
   const [senderPublicKey, setSenderPublicKey] = React.useState("");
   const navigate = useNavigate()
+  const useConnectionStatus = useConnectionStatus()
   const sdk = useSDK()
   const columns = [
     {
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => {
-        console.log(sdk.getSigner()._address)
-        console.log(row.getValue("senderPublicKey"))
-        const currentAddress = sdk.getSigner()._address.toLowerCase()
+        const currentAddress = (sdk.getSigner()?._address || "").toLowerCase()
         if (row.getValue("senderPublicKey") == currentAddress) {
           if (!row.getValue("content")) {
             return <Button onClick={() => approveSharedDocument(row.getValue("_id"), row.getValue("documentId"))}>Approve</Button>
