@@ -54,30 +54,33 @@ const SharedDocuments = () => {
   const [senderEncryptionKey, setSenderEncryptionKey] = React.useState("");
   const [senderPublicKey, setSenderPublicKey] = React.useState("");
   const navigate = useNavigate()
-  const useConnectionStatus = useConnectionStatus()
   const sdk = useSDK()
   const columns = [
     {
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => {
-        const currentAddress = (sdk.getSigner()?._address || "").toLowerCase()
-        if (row.getValue("senderPublicKey") == currentAddress) {
-          if (!row.getValue("content")) {
-            return <Button onClick={() => approveSharedDocument(row.getValue("_id"), row.getValue("documentId"))}>Approve</Button>
+        try {
+          const currentAddress = (sdk.getSigner()?._address || "").toLowerCase()
+          if (row.getValue("senderPublicKey") == currentAddress) {
+            if (!row.getValue("content")) {
+              return <Button onClick={() => approveSharedDocument(row.getValue("_id"), row.getValue("documentId"))}>Approve</Button>
+            } else {
+              return <p>Approved</p>
+            }
           } else {
-            return <p>Approved</p>
+            let content = ""
+            try {
+              content = row.getValue("content")
+            } catch (e) { }
+            if (content) {
+              return <Link to={`/document/${row.getValue("_id")}/${row.getValue("documentId")}`}>View</Link>
+            } else {
+              return <p>Waiting Approval</p>
+            }
           }
-        } else {
-          let content = ""
-          try {
-            content = row.getValue("content")
-          } catch (e) { }
-          if (content) {
-            return <Link to={`/document/${row.getValue("_id")}/${row.getValue("documentId")}`}>View</Link>
-          } else {
-            return <p>Waiting Approval</p>
-          }
+        } catch (e) {
+          return <p></p>
         }
 
       },
