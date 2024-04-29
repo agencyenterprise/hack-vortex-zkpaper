@@ -34,7 +34,7 @@ VITE_APP_ENV=localVITE_APP_ENV
 
 2. Backend env:
 ```
-MONGODB_URI=mongodb://mongo:xxgoGIigHEDRJMwUftCEsrZJqZETjBYQ@roundhouse.proxy.rlwy.net:46865
+MONGODB_URI=...
 MONGODB_DB=zkpaper
 BACKEND_PORT=3001
 SECRET_KEY=...
