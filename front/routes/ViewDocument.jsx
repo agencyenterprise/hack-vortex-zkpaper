@@ -14,6 +14,7 @@ const ViewDocumentPage = () => {
   const sdk = useSDK()
   const [doc, setDoc] = useState(exampleDoc);
   const info = (msg) => toast(msg, { type: "info" });
+  const error = (msg) => toast(msg, { type: "error" });
   const { sharedDocumentId, documentId } = useParams();
   const navigate = useNavigate();
   const connectionStatus = useConnectionStatus();
@@ -27,6 +28,10 @@ const ViewDocumentPage = () => {
 
     if ((window["ethereum"].providers || []).length > 1) {
       const metamaskProvider = window["ethereum"].providers.find((provider) => provider.isMetaMask);
+      if (metamaskProvider) {
+        error("This application only works with Metamask wallets!")
+        navigate("/")
+      }
       window["ethereum"] = metamaskProvider;
     }
 

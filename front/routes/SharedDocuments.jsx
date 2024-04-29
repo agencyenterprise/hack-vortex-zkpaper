@@ -53,6 +53,7 @@ const SharedDocuments = () => {
   const [sharedDocumentId, setSharedDocumentId] = React.useState("");
   const [senderEncryptionKey, setSenderEncryptionKey] = React.useState("");
   const [senderPublicKey, setSenderPublicKey] = React.useState("");
+  const navigate = useNavigate()
   const sdk = useSDK()
   const columns = [
     {
@@ -140,6 +141,10 @@ const SharedDocuments = () => {
 
     if ((window["ethereum"].providers || []).length > 1) {
       const metamaskProvider = window["ethereum"].providers.find((provider) => provider.isMetaMask);
+      if (metamaskProvider) {
+        error("This application only works with Metamask wallets!")
+        navigate("/")
+      }
       window["ethereum"] = metamaskProvider;
     }
 
