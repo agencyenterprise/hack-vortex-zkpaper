@@ -154,12 +154,12 @@ export const uploadSharedDocument = async (sharedDocumentId: string, documentId:
     return collection.updateOne({ _id: new ObjectId(sharedDocumentId), documentId: new ObjectId(documentId) }, { $set: { content } });
 }
 
-export const appendDocument = async (documentId: string, documentContent: string, proofOfWork: string, documentTitle: string) => {
+export const appendDocument = async (documentId: string, documentContent: string, proofOfWork: string, documentTitle: string, receiverPublicKey: string) => {
     const { db } = await connectToDatabase();
 
     const collection = db.collection<AppendDocumentModel>("documents");
 
-    return collection.updateOne({ _id: new ObjectId(documentId) }, { $set: { content: documentContent, proofOfWork, documentTitle } });
+    return collection.updateOne({ _id: new ObjectId(documentId), receiverPublicKey }, { $set: { content: documentContent, proofOfWork, documentTitle } });
 }
 
 export const createDocument = async (receiverPublicKey: string, documentTitle: string = "Untitled") => {
@@ -176,6 +176,15 @@ export const getDocumentById = async (documentId: string) => {
     const collection = db.collection<AppendDocumentModel>("documents");
 
     return collection.findOne({ _id: new ObjectId(documentId) });
+}
+
+
+export const getDocumentByIdAndPublicKey = async (documentId: string, receiverPublicKey: string) => {
+    const { db } = await connectToDatabase();
+
+    const collection = db.collection<AppendDocumentModel>("documents");
+
+    return collection.findOne({ _id: new ObjectId(documentId), receiverPublicKey });
 }
 
 export const getUserById = async (userId: string) => {
