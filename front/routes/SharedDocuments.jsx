@@ -57,6 +57,33 @@ const SharedDocuments = () => {
   const sdk = useSDK()
   const columns = [
     {
+      accessorKey: "action",
+      header: "Action",
+      cell: ({ row }) => {
+        console.log(sdk.getSigner()._address)
+        console.log(row.getValue("senderPublicKey"))
+        const currentAddress = sdk.getSigner()._address.toLowerCase()
+        if (row.getValue("senderPublicKey") == currentAddress) {
+          if (!row.getValue("content")) {
+            return <Button onClick={() => approveSharedDocument(row.getValue("_id"), row.getValue("documentId"))}>Approve</Button>
+          } else {
+            return <p>Approved</p>
+          }
+        } else {
+          let content = ""
+          try {
+            content = row.getValue("content")
+          } catch (e) { }
+          if (content) {
+            return <Link to={`/document/${row.getValue("_id")}/${row.getValue("documentId")}`}>View</Link>
+          } else {
+            return <p>Waiting Approval</p>
+          }
+        }
+
+      },
+    },
+    {
       accessorKey: "_id",
       header: "ID",
       cell: ({ row }) => <p>{row.getValue("_id")}</p>,
@@ -83,33 +110,7 @@ const SharedDocuments = () => {
         return <p>{row.getValue("content") ? row.getValue("content").slice(0, 5) + "..." : ""}</p>
       },
     },
-    {
-      accessorKey: "action",
-      header: "Action",
-      cell: ({ row }) => {
-        console.log(sdk.getSigner()._address)
-        console.log(row.getValue("senderPublicKey"))
-        const currentAddress = sdk.getSigner()._address.toLowerCase()
-        if (row.getValue("senderPublicKey") == currentAddress) {
-          if (!row.getValue("content")) {
-            return <Button onClick={() => approveSharedDocument(row.getValue("_id"), row.getValue("documentId"))}>Approve</Button>
-          } else {
-            return <p>Approved</p>
-          }
-        } else {
-          let content = ""
-          try {
-            content = row.getValue("content")
-          } catch (e) { }
-          if (content) {
-            return <Link to={`/document/${row.getValue("_id")}/${row.getValue("documentId")}`}>View</Link>
-          } else {
-            return <p>Waiting Approval</p>
-          }
-        }
 
-      },
-    }
   ];
   const table = useReactTable({
     data,
