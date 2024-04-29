@@ -49,6 +49,7 @@
     "openzeppelin-solidity": "^3.4.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-loader-spinner": "^6.1.6",
     "react-query": "^3.39.3",
     "react-quill": "^2.0.0",
     "react-router": "^6.23.0",

@@ -7,11 +7,13 @@ import { toast } from 'react-toastify'
 import { useConnectionStatus, useSDK } from "@thirdweb-dev/react";
 import ABI from "../utils/DocumentNFT.json";
 import { CONTRACT_ADDRESS } from "../utils/network";
+import { MutatingDots } from 'react-loader-spinner'
 const Home = () => {
   const navigate = useNavigate();
   const error = (msg) => toast(msg, { type: "error" });
   const info = (msg) => toast(msg, { type: "info" });
   const success = (msg) => toast(msg, { type: "success" });
+  const [loading, setLoading] = React.useState(false)
   const sdk = useSDK()
   const connectionStatus = useConnectionStatus();
   const hasSubscription = async () => {
@@ -24,6 +26,7 @@ const Home = () => {
     }
   }
   const buySubscription = async () => {
+
     try {
       info("Buying a subscription to start creating documents!")
       const price = 0.001 * 10 ** 18
@@ -48,6 +51,7 @@ const Home = () => {
     return { signature, address }
   }
   const create = async () => {
+    setLoading(true)
     try {
       if (connectionStatus !== "connected") {
         error("Please connect your wallet")
@@ -71,6 +75,8 @@ const Home = () => {
     } catch (e) {
       console.log(e)
       error("Failed to create document! Try again later.")
+    } finally {
+      setLoading(false)
     }
 
   }
@@ -87,7 +93,7 @@ const Home = () => {
         </div>
         <div className="flex flex-wrap items-center justify-center gap-8">
           {/* <Link to="/document/editing"> */}
-          <Button
+          {!loading ? <Button
             variant="primary"
             className="flex items-center gap-2 justify-center py-6"
             onClick={create}
@@ -107,7 +113,17 @@ const Home = () => {
                 fill="#0F172A"
               />
             </svg>
-          </Button>
+          </Button> : <MutatingDots
+            visible={true}
+            height="100"
+            width="100"
+            color="#4fa94d"
+            secondaryColor="#4fa94d"
+            radius="12.5"
+            ariaLabel="mutating-dots-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+          />}
           {/* </Link> */}
         </div>
         <div className="flex flex-wrap items-center justify-center gap-4">
