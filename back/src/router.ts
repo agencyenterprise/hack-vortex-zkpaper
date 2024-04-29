@@ -1,5 +1,5 @@
 import express from 'express';
-import { getDocumentById, createSharedDocument, appendDocument, uploadSharedDocument, getUserByPublicKey, getUserDocuments, retrieveSharedDocument, getSharedDocuments, createUser, createDocument } from './controller';
+import { getDocumentById, createSharedDocument, appendDocument, uploadSharedDocument, getUserByPublicKey, getUserDocuments, retrieveSharedDocument, getSharedDocuments, createUser, createDocument, getDocumentByIdAndPublicKey } from './controller';
 import { verifySignature } from './utils/signatures';
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { ScrollSepoliaTestnet } from "@thirdweb-dev/chains"
@@ -268,7 +268,11 @@ router.post("/document/append", async (req, res) => {
         if (!document) {
             return res.status(400).json({ message: "Missing document" });
         }
-        const documentRecord = await appendDocument(documentId, document, proofOfWork, documentTitle)
+        const hasDocument = await getDocumentByIdAndPublicKey(documentId, receiverPublicKey)
+        if (!hasDocument) {
+            return res.status(400).json({ message: "Document not found!" })
+        }
+        const documentRecord = await appendDocument(documentId, document, proofOfWork, documentTitle, receiverPublicKey)
         return res.json({ message: documentRecord });
     } catch (error: any) {
         return res.status(400).json({ message: error.message });
