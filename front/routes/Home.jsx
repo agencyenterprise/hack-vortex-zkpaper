@@ -25,7 +25,7 @@ const Home = () => {
   }
   const buySubscription = async () => {
     try {
-      info("Buy a subscription to start creating documents!")
+      info("Buying a subscription to start creating documents!")
       const price = 0.001 * 10 ** 18
       const contract = await sdk.getContractFromAbi(CONTRACT_ADDRESS, ABI.abi)
       await contract.call("paySubscription", [], { value: price })
