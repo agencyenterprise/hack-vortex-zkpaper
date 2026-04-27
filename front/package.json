@@ -35,7 +35,7 @@
     "@tanstack/react-table": "^8.16.0",
     "@thirdweb-dev/react": "^4.6.11",
     "@thirdweb-dev/sdk": "^4.0.72",
-    "axios": "^1.6.8",
+    "axios": "^1.15.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "crypto-js": "^4.2.0",
